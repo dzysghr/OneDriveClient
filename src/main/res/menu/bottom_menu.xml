@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_drive"
+        android:icon="@mipmap/onedrive"
+        android:title="网盘"
+        />
+    <item
+        android:id="@+id/menu_UpOrDownload"
+        android:icon="@mipmap/transfer"
+        android:title="传输"
+        />
+    <item
+        android:id="@+id/menu_local"
+        android:icon="@mipmap/local"
+        android:title="本地"
+        />
+
+    <item
+        android:id="@+id/menu_more"
+        android:icon="@mipmap/more"
+        android:title="更多"
+        />
+
+</menu>

@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">OnedriveClient</string>
+    <string name="access_denied">认证失败</string>
+</resources>

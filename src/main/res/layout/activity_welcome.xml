@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_welcome"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.dzy.onedriveclient.ui.WelcomeActivity">
+
+    <Button
+        android:id="@+id/btn_login_onedrive"
+        android:textAllCaps="false"
+        android:text="登录 OneDrive"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"/>
+
+</RelativeLayout>
