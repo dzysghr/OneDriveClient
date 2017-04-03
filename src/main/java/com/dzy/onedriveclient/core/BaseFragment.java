@@ -2,6 +2,7 @@ package com.dzy.onedriveclient.core;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
+import com.dzy.onedriveclient.core.mvp.IBaseVIew;
 
 
 public abstract class BaseFragment extends Fragment {
@@ -25,13 +27,16 @@ public abstract class BaseFragment extends Fragment {
     private IBasePresenter mPresenter;
     private boolean mFirstLoad = true;
     private boolean mViewCreated = false;
-
+    private View mParent;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TAG = this.getClass().getSimpleName();
         mPresenter = initPresenter();
+        if (mPresenter!=null&&this instanceof IBaseVIew){
+            mPresenter.attachView((IBaseVIew) this);
+        }
     }
 
     @Nullable
@@ -40,6 +45,7 @@ public abstract class BaseFragment extends Fragment {
         View v = inflater.inflate(getLayoutId(),container,false);
         initView();
         setupView();
+        mParent = v;
         return v;
     }
 
@@ -50,23 +56,19 @@ public abstract class BaseFragment extends Fragment {
     }
 
     @Override
-    public void setUserVisibleHint(boolean isVisibleToUser)
-    {
+    public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         //如果这是第一个fragment，setUserVisibleHint比onCreateView会比先调用，mViewCreated为false，这里判断不会为true
-        if (mFirstLoad && isVisibleToUser&&mViewCreated)
-        {
+        if (mFirstLoad && isVisibleToUser&&mViewCreated) {
             LazyLoad();
             mFirstLoad = false;
         }
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState)
-    {
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (getUserVisibleHint()) //如果这是第一个fragment,这里结果为true
-        {
+        if (getUserVisibleHint()){ //如果这是第一个fragment,这里结果为true
             mFirstLoad = false;
             LazyLoad();
         }
@@ -89,12 +91,16 @@ public abstract class BaseFragment extends Fragment {
         Toast.makeText(getContext(),msg,Toast.LENGTH_SHORT).show();
     }
 
-    public void closeView(){
+    public void close(){
         getFragmentManager().popBackStack();
     }
 
-    public void dailog(String msg){
+    public void dialog(String msg){
         new AlertDialog.Builder(getContext()).setMessage(msg).create().show();
+    }
+
+    public <T> T bindView(@IdRes int id){
+        return (T)mParent.findViewById(id);
     }
 
     public BaseFragment newInstance(){

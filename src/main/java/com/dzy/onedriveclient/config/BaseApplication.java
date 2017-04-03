@@ -7,6 +7,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.provider.Settings;
 
+import java.io.File;
+
 /**
  * Created by dzysg on 2017/4/1 0001.
  */
@@ -17,7 +19,7 @@ public class BaseApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        File f;
     }
 
     synchronized boolean goToWifiSettingsIfDisconnected() {

@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
+import com.dzy.onedriveclient.core.mvp.IBaseVIew;
 
 /**
  * Created by dzysg on 2017/4/1 0001.
@@ -41,6 +42,9 @@ public abstract class BaseActivity extends AppCompatActivity {
         initView();
         setupView();
         mPresenter = initPresenter();
+        if (mPresenter!=null&&this instanceof IBaseVIew){
+            mPresenter.attachView((IBaseVIew) this);
+        }
     }
 
     public View getContentView(){

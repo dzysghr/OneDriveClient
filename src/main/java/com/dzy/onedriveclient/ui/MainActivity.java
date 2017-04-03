@@ -9,7 +9,7 @@ import com.dzy.onedriveclient.core.BaseActivity;
 import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.ui.main.DriveFragment;
-import com.dzy.onedriveclient.ui.main.LocalFileFragment;
+import com.dzy.onedriveclient.ui.file.local.LocalFileFragment;
 import com.dzy.onedriveclient.ui.main.MoreFragment;
 import com.dzy.onedriveclient.ui.main.TransferFragment;
 
