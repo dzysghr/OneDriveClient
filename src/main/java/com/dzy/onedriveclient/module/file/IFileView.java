@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.ui.file;
+package com.dzy.onedriveclient.module.file;
 
 import com.dzy.onedriveclient.core.mvp.IBaseVIew;
 import com.dzy.onedriveclient.model.IBaseFileBean;

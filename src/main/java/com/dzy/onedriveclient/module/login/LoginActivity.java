@@ -1,5 +1,5 @@
 
-package com.dzy.onedriveclient.ui.login;
+package com.dzy.onedriveclient.module.login;
 
 import android.content.Intent;
 import android.text.TextUtils;
@@ -16,7 +16,7 @@ import com.dzy.onedriveclient.config.Constants;
 import com.dzy.onedriveclient.config.OauthConfig;
 import com.dzy.onedriveclient.core.BaseActivity;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
-import com.dzy.onedriveclient.ui.MainActivity;
+import com.dzy.onedriveclient.module.MainActivity;
 
 public class LoginActivity extends BaseActivity {
 

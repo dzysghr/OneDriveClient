@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.ui;
+package com.dzy.onedriveclient.module;
 
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -8,10 +8,10 @@ import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.core.BaseActivity;
 import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
-import com.dzy.onedriveclient.ui.main.DriveFragment;
-import com.dzy.onedriveclient.ui.file.local.LocalFileFragment;
-import com.dzy.onedriveclient.ui.main.MoreFragment;
-import com.dzy.onedriveclient.ui.main.TransferFragment;
+import com.dzy.onedriveclient.module.main.DriveFragment;
+import com.dzy.onedriveclient.module.file.local.LocalFileFragment;
+import com.dzy.onedriveclient.module.main.MoreFragment;
+import com.dzy.onedriveclient.module.main.TransferFragment;
 
 import java.util.HashMap;
 import java.util.Map;

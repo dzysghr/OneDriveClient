@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.ui;
+package com.dzy.onedriveclient.module;
 
 import android.content.Intent;
 import android.view.View;
@@ -8,7 +8,7 @@ import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.config.Constants;
 import com.dzy.onedriveclient.core.BaseActivity;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
-import com.dzy.onedriveclient.ui.login.LoginActivity;
+import com.dzy.onedriveclient.module.login.LoginActivity;
 
 public class WelcomeActivity extends BaseActivity {
 

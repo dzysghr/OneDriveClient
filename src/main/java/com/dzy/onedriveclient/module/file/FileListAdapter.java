@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.ui.file;
+package com.dzy.onedriveclient.module.file;
 
 import android.support.annotation.LayoutRes;
 

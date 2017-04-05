@@ -1,14 +1,11 @@
-package com.dzy.onedriveclient.ui.file.local;
+package com.dzy.onedriveclient.module.file.local;
 
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.core.mvp.IBaseVIew;
 import com.dzy.onedriveclient.model.IBaseFileBean;
-import com.dzy.onedriveclient.ui.file.IFilePresenter;
-import com.dzy.onedriveclient.ui.file.IFileView;
+import com.dzy.onedriveclient.module.file.IFilePresenter;
+import com.dzy.onedriveclient.module.file.IFileView;
 
-/**
- * Created by dzysg on 2017/4/3 0003.
- */
 
 public class LocalFilePresenter implements IFilePresenter {
 
@@ -61,7 +58,7 @@ public class LocalFilePresenter implements IFilePresenter {
     }
 
     @Override
-    public void patse(IBaseFileBean bean) {
+    public void paste(IBaseFileBean bean) {
 
     }
 

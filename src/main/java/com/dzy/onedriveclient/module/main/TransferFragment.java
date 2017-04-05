@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.ui.main;
+package com.dzy.onedriveclient.module.main;
 
 import android.util.Log;
 
@@ -10,9 +10,7 @@ import com.dzy.onedriveclient.core.mvp.IBasePresenter;
  * Created by dzysg on 2017/4/2 0002.
  */
 
-public class DriveFragment extends BaseFragment {
-
-
+public class TransferFragment extends BaseFragment {
     @Override
     protected void initView() {
 
@@ -25,7 +23,7 @@ public class DriveFragment extends BaseFragment {
 
     @Override
     protected int getLayoutId() {
-        return R.layout.fragment_drive;
+        return R.layout.fragment_transfer;
     }
 
     @Override
@@ -35,7 +33,7 @@ public class DriveFragment extends BaseFragment {
 
     @Override
     protected void LazyLoad() {
-        Log.e(TAG, "LazyLoad: Drive");
-    }
+        Log.e(TAG, "LazyLoad: transfer");
 
+    }
 }

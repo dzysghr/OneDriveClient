@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.ui.main;
+package com.dzy.onedriveclient.module.main;
 
 import android.util.Log;
 

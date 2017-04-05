@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.ui.file.local;
+package com.dzy.onedriveclient.module.file.local;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,9 +11,9 @@ import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.IBaseFileBean;
-import com.dzy.onedriveclient.ui.file.FileListAdapter;
-import com.dzy.onedriveclient.ui.file.IFilePresenter;
-import com.dzy.onedriveclient.ui.file.IFileView;
+import com.dzy.onedriveclient.module.file.FileListAdapter;
+import com.dzy.onedriveclient.module.file.IFilePresenter;
+import com.dzy.onedriveclient.module.file.IFileView;
 
 import java.util.List;
 
