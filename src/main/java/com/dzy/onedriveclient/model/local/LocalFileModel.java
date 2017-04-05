@@ -38,7 +38,7 @@ public class LocalFileModel  implements IFileModel{
         }else{
             FileUtils.deleteFolder(file);
         }
-        // TODO: 2017/4/4 0004  model层应该抛异常让M层知道操作失败的原因
+        // TODO: 2017/4/4 0004  model层应该抛异常让上层知道操作失败的原因
     }
 
     @Override
@@ -61,6 +61,11 @@ public class LocalFileModel  implements IFileModel{
         FileUtils.createFolder(new File((File) parent.getReal(), name));
     }
 
+    @Override
+    public boolean exists(IBaseFileBean bean) {
+        File file = (File) bean.getReal();
+        return file.exists();
+    }
 
     private static List<IBaseFileBean> genChild(File file){
          File[] array = file.listFiles();

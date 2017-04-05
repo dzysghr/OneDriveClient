@@ -10,4 +10,5 @@ public interface IFileModel {
     void copy(IBaseFileBean from,IBaseFileBean to);
     void cut(IBaseFileBean from,IBaseFileBean to);
     void createFolder(IBaseFileBean parent, String name);
+    boolean exists(IBaseFileBean bean);
 }
