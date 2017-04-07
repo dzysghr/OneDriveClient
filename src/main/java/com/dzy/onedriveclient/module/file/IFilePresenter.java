@@ -15,6 +15,6 @@ public interface IFilePresenter extends IBasePresenter {
     void copy(IBaseFileBean bean);
     void cut(IBaseFileBean bean);
     void paste(IBaseFileBean bean);
-    void dowload(IBaseFileBean bean);
+    void download(IBaseFileBean bean);
     void upload(IBasePresenter bean);
 }

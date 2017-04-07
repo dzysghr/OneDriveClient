@@ -90,8 +90,8 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
 
     @Override
     protected void LazyLoad() {
-        Log.e(TAG, "LazyLoad: local");
         mFilePresenter.refresh();
+        Log.e(TAG, "LazyLoad: local");
     }
 
     @Override
@@ -103,5 +103,17 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
     public void showTitleAndParent(String title, String parent) {
         mTvTitle.setText(title);
         mTvBack.setText(parent);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.e(TAG, "onDestroy: ");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.e(TAG, "onDestroyView: ");
     }
 }

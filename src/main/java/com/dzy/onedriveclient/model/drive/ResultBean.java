@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.model.drivebean;
+package com.dzy.onedriveclient.model.drive;
 
 import java.util.List;
 

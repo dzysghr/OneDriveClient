@@ -1,7 +1,4 @@
-package com.dzy.onedriveclient.model;
-
-import com.dzy.onedriveclient.model.drivebean.DriveItem;
-import com.dzy.onedriveclient.model.drivebean.ResultBean;
+package com.dzy.onedriveclient.model.drive;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

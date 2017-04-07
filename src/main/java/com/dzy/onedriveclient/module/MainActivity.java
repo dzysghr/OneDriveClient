@@ -8,10 +8,10 @@ import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.core.BaseActivity;
 import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
-import com.dzy.onedriveclient.module.main.DriveFragment;
 import com.dzy.onedriveclient.module.file.local.LocalFileFragment;
-import com.dzy.onedriveclient.module.main.MoreFragment;
-import com.dzy.onedriveclient.module.main.TransferFragment;
+import com.dzy.onedriveclient.module.file.online.DriveFragment;
+import com.dzy.onedriveclient.module.more.MoreFragment;
+import com.dzy.onedriveclient.module.transfer.TransferFragment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,12 +39,15 @@ public class MainActivity extends BaseActivity {
         mFragments.put(R.id.menu_drive,new DriveFragment());
         mFragments.put(R.id.menu_local, new LocalFileFragment());
         mFragments.put(R.id.menu_more, new MoreFragment());
-        mFragments.put(R.id.menu_UpOrDownload,new TransferFragment());
+        mFragments.put(R.id.menu_transfer,new TransferFragment());
         mCurrentFragment = mFragments.get(R.id.menu_drive);
+
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.container,mCurrentFragment)
+                .add(R.id.container,mCurrentFragment,DriveFragment.class.getSimpleName())
+                .show(mCurrentFragment)
                 .commit();
+        // TODO: 2017/4/5 0005 查看生命周期
     }
 
     @Override
@@ -59,11 +62,24 @@ public class MainActivity extends BaseActivity {
     }
 
     private void createOrShowFragment(MenuItem item){
-        BaseFragment fragment = mFragments.get(item.getItemId());
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container,fragment)
-                .commit();
+        BaseFragment fragment = (BaseFragment) getSupportFragmentManager().findFragmentByTag(mFragments.get(item.getItemId()).getClass().getSimpleName());
+        if (fragment==null){
+            fragment = mFragments.get(item.getItemId());
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .hide(mCurrentFragment)
+                    .add(R.id.container,fragment,fragment.getClass().getSimpleName())
+                    .commit();
+
+        }else{
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .hide(mCurrentFragment)
+                    .show(fragment)
+                    .commit();
+
+        }
+        mCurrentFragment = fragment;
 
     }
 }

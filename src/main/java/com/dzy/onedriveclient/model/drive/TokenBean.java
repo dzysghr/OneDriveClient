@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.model.drivebean;
+package com.dzy.onedriveclient.model.drive;
 
 /**
  * Created by dzysg on 2017/4/2 0002.

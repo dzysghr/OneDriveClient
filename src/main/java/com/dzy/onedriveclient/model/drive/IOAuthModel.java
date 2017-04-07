@@ -1,6 +1,4 @@
-package com.dzy.onedriveclient.model;
-
-import com.dzy.onedriveclient.model.drivebean.TokenBean;
+package com.dzy.onedriveclient.model.drive;
 
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;

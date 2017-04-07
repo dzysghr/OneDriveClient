@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.model.drivebean;
+package com.dzy.onedriveclient.model.drive;
 
 public class DriveItem {
     private String id;

@@ -1,6 +1,7 @@
 package com.dzy.onedriveclient.model.local;
 
 import android.os.Environment;
+import android.util.Log;
 
 import com.dzy.commemlib.utils.FileUtils;
 import com.dzy.onedriveclient.model.IBaseFileBean;
@@ -10,6 +11,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.ContentValues.TAG;
+
 
 public class LocalFileModel  implements IFileModel{
 
@@ -17,6 +20,7 @@ public class LocalFileModel  implements IFileModel{
 
     public LocalFileModel(){
         mRoot = Environment.getExternalStorageDirectory();
+        Log.e(TAG, "LocalFileModel:"+mRoot.getAbsolutePath());
     }
 
     @Override
@@ -65,6 +69,11 @@ public class LocalFileModel  implements IFileModel{
     public boolean exists(IBaseFileBean bean) {
         File file = (File) bean.getReal();
         return file.exists();
+    }
+
+    @Override
+    public IBaseFileBean getRoot() {
+        return new LocalFileBean(mRoot);
     }
 
     private static List<IBaseFileBean> genChild(File file){

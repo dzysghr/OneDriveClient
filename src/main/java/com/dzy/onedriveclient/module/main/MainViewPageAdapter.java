@@ -6,6 +6,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
 
 import com.dzy.onedriveclient.module.file.local.LocalFileFragment;
+import com.dzy.onedriveclient.module.file.online.DriveFragment;
+import com.dzy.onedriveclient.module.more.MoreFragment;
+import com.dzy.onedriveclient.module.transfer.TransferFragment;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;

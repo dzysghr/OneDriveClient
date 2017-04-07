@@ -43,9 +43,9 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(getLayoutId(),container,false);
+        mParent = v;
         initView();
         setupView();
-        mParent = v;
         return v;
     }
 
@@ -55,6 +55,8 @@ public abstract class BaseFragment extends Fragment {
         mViewCreated = true;
     }
 
+
+
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
@@ -62,6 +64,14 @@ public abstract class BaseFragment extends Fragment {
         if (mFirstLoad && isVisibleToUser&&mViewCreated) {
             LazyLoad();
             mFirstLoad = false;
+        }
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden){
+            LazyLoad();
         }
     }
 
@@ -106,4 +116,6 @@ public abstract class BaseFragment extends Fragment {
     public BaseFragment newInstance(){
         return null;
     }
+
+
 }

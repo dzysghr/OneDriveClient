@@ -11,4 +11,5 @@ public interface IFileModel {
     void cut(IBaseFileBean from,IBaseFileBean to);
     void createFolder(IBaseFileBean parent, String name);
     boolean exists(IBaseFileBean bean);
+    IBaseFileBean getRoot();
 }

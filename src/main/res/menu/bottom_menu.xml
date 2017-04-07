@@ -6,7 +6,7 @@
         android:title="网盘"
         />
     <item
-        android:id="@+id/menu_UpOrDownload"
+        android:id="@+id/menu_transfer"
         android:icon="@mipmap/transfer"
         android:title="传输"
         />
