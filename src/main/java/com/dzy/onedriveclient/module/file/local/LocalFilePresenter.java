@@ -7,8 +7,12 @@ import com.dzy.onedriveclient.model.IFileModel;
 import com.dzy.onedriveclient.model.local.LocalFileModel;
 import com.dzy.onedriveclient.module.file.IFilePresenter;
 import com.dzy.onedriveclient.module.file.IFileView;
+import com.dzy.onedriveclient.utils.RxHelper;
 
 import java.util.List;
+
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
 
 
 public class LocalFilePresenter implements IFilePresenter {
@@ -17,12 +21,18 @@ public class LocalFilePresenter implements IFilePresenter {
     private IBaseFileBean mParent;
     private IBaseFileBean mCurrent;
     private IFileModel mFileModel;
+    private IBaseFileBean mRoot;
+    private IBaseFileBean mCopyOrCut;
+    private boolean mIsCopy;
+
+
     private int mLevel = 0;
 
     @Override
     public void attachView(IBaseVIew vIew) {
         mView = (IFileView) vIew;
         mFileModel = new LocalFileModel();
+        mRoot = mFileModel.getRoot().blockingFirst();
     }
 
     @Override
@@ -37,13 +47,19 @@ public class LocalFilePresenter implements IFilePresenter {
 
     @Override
     public void refresh() {
-        List<IBaseFileBean> list = mFileModel.getChildren(mCurrent);
-        mView.showFileList(list);
-        if (mLevel == 0) {
-            mView.showTitleAndParent("根目录", null);
-        } else {
-            mView.showTitleAndParent(mCurrent.getName(), mParent == null ? "<" : "<" + mParent.getName());
-        }
+        mFileModel.getChildren(mCurrent)
+                .compose(RxHelper.<List<IBaseFileBean>>io_main())
+                .subscribe(new Consumer<List<IBaseFileBean>>() {
+                    @Override
+                    public void accept(@NonNull List<IBaseFileBean> list) throws Exception {
+                        mView.showFileList(list);
+                        if (mLevel == 0) {
+                            mView.showTitleAndParent("根目录", null);
+                        } else {
+                            mView.showTitleAndParent(mCurrent.getName(), mParent == null ? "<" : "<" + mParent.getName());
+                        }
+                    }
+                });
     }
 
 
@@ -78,12 +94,14 @@ public class LocalFilePresenter implements IFilePresenter {
 
     @Override
     public void copy(IBaseFileBean bean) {
-
+        mCopyOrCut = bean;
+        mIsCopy = true;
     }
 
     @Override
     public void cut(IBaseFileBean bean) {
-
+        mCopyOrCut = bean;
+        mIsCopy = false;
     }
 
     @Override
