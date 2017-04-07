@@ -2,6 +2,7 @@ package com.dzy.onedriveclient.module.file.local;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -17,9 +18,6 @@ import com.dzy.onedriveclient.module.file.IFileView;
 
 import java.util.List;
 
-/**
- * Created by dzysg on 2017/4/2 0002.
- */
 
 public class LocalFileFragment extends BaseFragment implements IFileView{
 
@@ -38,6 +36,9 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
 
     @Override
     protected void setupView() {
+        Toolbar toolbar = bindView(R.id.toolbar);
+
+
         mAdapter = new FileListAdapter(null,R.layout.list_item_file);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setAdapter(mAdapter);
@@ -70,7 +71,6 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
         }else{
             // TODO: 2017/4/3 0003 show dialog to select open type
         }
-
     }
 
     protected void onLongClick(IBaseFileBean bean){
@@ -115,5 +115,16 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
     public void onDestroyView() {
         super.onDestroyView();
         Log.e(TAG, "onDestroyView: ");
+    }
+
+    @Override
+    public void close() {
+        getActivity().finish();
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        mFilePresenter.goBack();
+        return true;
     }
 }

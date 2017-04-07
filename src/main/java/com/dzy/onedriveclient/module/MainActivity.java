@@ -80,6 +80,12 @@ public class MainActivity extends BaseActivity {
 
         }
         mCurrentFragment = fragment;
+    }
 
+    @Override
+    public void onBackPressed() {
+        if (!mCurrentFragment.onBackPressed()){
+            finish();
+        }
     }
 }

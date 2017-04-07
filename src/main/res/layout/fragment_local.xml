@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
+              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
     <android.support.v7.widget.Toolbar
@@ -19,7 +20,8 @@
             android:maxEms="4"
             style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
             android:textColor="@android:color/white"
-            android:text="本地"
+            tools:text="aaa"
+            android:textAllCaps="false"
             android:clickable="true"
             android:layout_gravity="center"
             android:layout_width="wrap_content"
@@ -32,8 +34,10 @@
             android:maxEms="4"
             style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
             android:textColor="@android:color/white"
-            android:text="上一层asssa"
-            android:layout_gravity="left|start"
+            tools:text="上一层asssa"
+            android:textAllCaps="false"
+            android:textSize="14sp"
+            android:layout_gravity="start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 

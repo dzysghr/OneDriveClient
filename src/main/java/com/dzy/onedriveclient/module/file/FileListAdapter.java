@@ -31,7 +31,6 @@ public class FileListAdapter extends CommonAdapter<IBaseFileBean> {
             String type = bean.getType();
             switch (type){
                 case "txt":holder.setImageResource(R.id.iv_item_icon,R.mipmap.file);break;
-
                 default:
                     holder.setImageResource(R.id.iv_item_icon,R.mipmap.file);break;
             }

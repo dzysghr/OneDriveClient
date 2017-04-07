@@ -39,17 +39,17 @@ public class LocalFilePresenter implements IFilePresenter {
     public void refresh() {
         List<IBaseFileBean> list = mFileModel.getChildren(mCurrent);
         mView.showFileList(list);
-        if (mLevel==0){
-            mView.showTitleAndParent("根目录",null);
-        }else{
-            mView.showTitleAndParent(mCurrent.getName(),mParent==null?"<":"<"+mParent.getName());
+        if (mLevel == 0) {
+            mView.showTitleAndParent("根目录", null);
+        } else {
+            mView.showTitleAndParent(mCurrent.getName(), mParent == null ? "<" : "<" + mParent.getName());
         }
     }
 
 
     @Override
     public void open(IBaseFileBean bean) {
-        if (bean.isFolder()){
+        if (bean.isFolder()) {
             mParent = mCurrent;
             mCurrent = bean;
             mLevel++;
@@ -64,7 +64,15 @@ public class LocalFilePresenter implements IFilePresenter {
 
     @Override
     public void goBack() {
+        if (mLevel==0) {
+            mView.close();
+            return;
+        }
         mLevel--;
+        mCurrent = mParent;
+        mParent = mCurrent == null ? null : mCurrent.getParent();
+
+        refresh();
 
     }
 

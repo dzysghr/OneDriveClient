@@ -117,5 +117,8 @@ public abstract class BaseFragment extends Fragment {
         return null;
     }
 
+    public boolean onBackPressed(){
+        return false;
+    }
 
 }
