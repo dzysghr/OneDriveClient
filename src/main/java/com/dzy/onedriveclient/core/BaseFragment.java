@@ -121,4 +121,12 @@ public abstract class BaseFragment extends Fragment {
         return false;
     }
 
+    public void showProgress(){
+
+    }
+
+    public void hideProgress(){
+
+    }
+
 }

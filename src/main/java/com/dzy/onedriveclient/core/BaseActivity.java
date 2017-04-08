@@ -97,4 +97,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         new AlertDialog.Builder(this).setMessage(msg).create().show();
     }
 
+    public void showProgress(){
+
+    }
+
+    public void hideProgress(){
+
+    }
+
 }

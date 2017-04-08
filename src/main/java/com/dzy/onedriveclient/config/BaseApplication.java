@@ -7,19 +7,19 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.provider.Settings;
 
-import java.io.File;
-
-/**
- * Created by dzysg on 2017/4/1 0001.
- */
 
 public class BaseApplication extends Application {
 
+    private static Application sInstance;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        File f;
+        sInstance =this;
+    }
+
+    public static Application  getApp(){
+        return sInstance;
     }
 
     synchronized boolean goToWifiSettingsIfDisconnected() {

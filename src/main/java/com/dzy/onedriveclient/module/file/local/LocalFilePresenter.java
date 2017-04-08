@@ -59,6 +59,11 @@ public class LocalFilePresenter implements IFilePresenter {
                             mView.showTitleAndParent(mCurrent.getName(), mParent == null ? "<" : "<" + mParent.getName());
                         }
                     }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        mView.Toast(throwable.getMessage());
+                    }
                 });
     }
 
@@ -87,7 +92,6 @@ public class LocalFilePresenter implements IFilePresenter {
         mLevel--;
         mCurrent = mParent;
         mParent = mCurrent == null ? null : mCurrent.getParent();
-
         refresh();
 
     }

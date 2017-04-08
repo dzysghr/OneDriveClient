@@ -1,5 +1,8 @@
 package com.dzy.onedriveclient.utils;
 
+import com.dzy.commemlib.utils.NetworkUtils;
+import com.dzy.onedriveclient.config.BaseApplication;
+
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -19,21 +22,23 @@ public class RxHelper {
             }
         };
     }
+
+    //
 //
-//
-//    //检查网络
-//    public static <T> Observable.Transformer<BaseResult<T>, BaseResult<T>> checkNetWork() {
-//        return new Observable.Transformer<BaseResult<T>, BaseResult<T>>() {
-//            @Override
-//            public Observable<BaseResult<T>> call(Observable<BaseResult<T>> tObservable) {
-//                if (NetworkUtils.isNetworkConnected(MyApp.getAppContext())) {
-//                    return tObservable;
-//                } else {
-//                    return Observable.error(new RuntimeException("当前无网络"));
-//                }
-//            }
-//        };
-//    }
+    public static <T> ObservableTransformer<T, T> checkNetwork() {
+        return new ObservableTransformer<T, T>() {
+            @Override
+            public ObservableSource<T> apply(@NonNull Observable<T> upstream) {
+
+                if (NetworkUtils.isNetworkConnected(BaseApplication.getApp())) {
+                    return upstream;
+                } else {
+                    return Observable.error(new RuntimeException("网络错误"));
+                }
+
+            }
+        };
+    }
 //
 //
 //    //处理返回码
@@ -62,25 +67,21 @@ public class RxHelper {
 //    }
 
 
-    public static <T> Observable<T> create(final IFun<T> f){
-       return Observable.create(new ObservableOnSubscribe<T>() {
+    public static <T> Observable<T> create(final IFun<T> f) {
+        return Observable.create(new ObservableOnSubscribe<T>() {
             @Override
             public void subscribe(@NonNull ObservableEmitter<T> e) throws Exception {
-                try{
-                    e.onNext(f.fun());
-                    e.onComplete();
-                }catch (Exception ex){
-                    e.onError(ex);
-                }
+                e.onNext(f.fun());
+                e.onComplete();
             }
         });
     }
 
-    public static <T> Observable<T> io_main(Observable<T> ob){
+    public static <T> Observable<T> io_main(Observable<T> ob) {
         return ob.subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.io());
     }
 
-    public interface IFun <T>{
+    public interface IFun<T> {
         T fun();
     }
 }
