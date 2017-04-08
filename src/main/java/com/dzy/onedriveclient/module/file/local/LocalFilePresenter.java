@@ -110,7 +110,10 @@ public class LocalFilePresenter implements IFilePresenter {
 
     @Override
     public void paste(IBaseFileBean bean) {
-
+        if (mCopyOrCut==null){
+            mView.Toast("当前无项目粘贴");
+            return;
+        }
     }
 
     @Override
@@ -121,5 +124,10 @@ public class LocalFilePresenter implements IFilePresenter {
     @Override
     public void upload(IBasePresenter bean) {
 
+    }
+
+    @Override
+    public void createFolder(String name) {
+        mFileModel.createFolder(mCurrent,name);
     }
 }

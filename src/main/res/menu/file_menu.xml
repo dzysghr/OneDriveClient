@@ -4,4 +4,7 @@
     <item android:title="粘贴"
           app:showAsAction="never"
           android:id="@+id/menu_paste"/>
+    <item android:title="新建文件夹"
+          app:showAsAction="never"
+          android:id="@+id/menu_createFolder"/>
 </menu>

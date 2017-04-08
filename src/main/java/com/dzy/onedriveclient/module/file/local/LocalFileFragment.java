@@ -13,6 +13,7 @@ import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.IBaseFileBean;
+import com.dzy.onedriveclient.module.file.CreateFolderDialog;
 import com.dzy.onedriveclient.module.file.FileListAdapter;
 import com.dzy.onedriveclient.module.file.IFilePresenter;
 import com.dzy.onedriveclient.module.file.IFileView;
@@ -44,6 +45,8 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
             public boolean onMenuItemClick(MenuItem item) {
                 if (item.getItemId()==R.id.menu_paste){
                     mFilePresenter.paste(null);
+                }else if(item.getItemId()==R.id.menu_createFolder){
+                    new CreateFolderDialog(getContext()).show();
                 }
                 return false;
             }
