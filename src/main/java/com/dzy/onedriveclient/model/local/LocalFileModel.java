@@ -78,7 +78,6 @@ public class LocalFileModel implements IFileModel {
     @Override
     public Observable<Boolean> cut(IBaseFileBean from, IBaseFileBean to) {
         return Observable.mergeArray(copy(from, to), delete(from));
-
     }
 
     @Override
@@ -86,7 +85,12 @@ public class LocalFileModel implements IFileModel {
         return RxHelper.create(new RxHelper.IFun<Boolean>() {
             @Override
             public Boolean fun() {
-                FileUtils.createFolder(new File((File) parent.getReal(), name));
+                File file = mRoot;
+                if (parent!=null){
+                    file = (File) parent.getReal();
+                }
+                file = new File(file,name);
+                FileUtils.createFolder(file);
                 return true;
             }
         });

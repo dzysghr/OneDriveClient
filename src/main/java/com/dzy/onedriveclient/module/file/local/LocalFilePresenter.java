@@ -128,6 +128,13 @@ public class LocalFilePresenter implements IFilePresenter {
 
     @Override
     public void createFolder(String name) {
-        mFileModel.createFolder(mCurrent,name);
+        mFileModel.createFolder(mCurrent,name)
+                .doOnNext(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(@NonNull Boolean aBoolean) throws Exception {
+                        refresh();
+                    }
+                })
+                .blockingFirst();
     }
 }

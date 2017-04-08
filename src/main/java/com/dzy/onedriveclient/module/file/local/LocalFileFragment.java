@@ -46,7 +46,14 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
                 if (item.getItemId()==R.id.menu_paste){
                     mFilePresenter.paste(null);
                 }else if(item.getItemId()==R.id.menu_createFolder){
-                    new CreateFolderDialog(getContext()).show();
+                    CreateFolderDialog dialog =  new CreateFolderDialog(getContext());
+                    dialog.setDialogListener(new CreateFolderDialog.DialogListener() {
+                        @Override
+                        public void onOK(String name) {
+                            mFilePresenter.createFolder(name);
+                        }
+                    });
+                    dialog.show();
                 }
                 return false;
             }

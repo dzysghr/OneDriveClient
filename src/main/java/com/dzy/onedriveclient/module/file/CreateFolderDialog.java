@@ -45,6 +45,7 @@ public class CreateFolderDialog extends Dialog {
                 if (!TextUtils.isEmpty(editText.getText().toString())) {
                        if (mDialogListener!=null){
                            mDialogListener.onOK(editText.getText().toString());
+                           cancel();
                        }
                 }
             }
