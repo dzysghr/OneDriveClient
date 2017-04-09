@@ -11,6 +11,7 @@ import com.dzy.onedriveclient.utils.RxHelper;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 
@@ -80,7 +81,14 @@ public class LocalFilePresenter implements IFilePresenter {
 
     @Override
     public void delete(IBaseFileBean bean) {
-
+        mFileModel.delete(bean).subscribe(new Consumer<Boolean>() {
+            @Override
+            public void accept(@NonNull Boolean aBoolean) throws Exception {
+                if (aBoolean){
+                    mView.Toast("删除成功");
+                }
+            }
+        });
     }
 
     @Override
@@ -110,10 +118,26 @@ public class LocalFilePresenter implements IFilePresenter {
 
     @Override
     public void paste(IBaseFileBean bean) {
+
+        Observable<Boolean> ob;
         if (mCopyOrCut==null){
             mView.Toast("当前无项目粘贴");
             return;
+        }else{
+            if (mIsCopy){
+                ob = mFileModel.copy(mCopyOrCut,mCurrent);
+            }else{
+               ob = mFileModel.cut(mCopyOrCut,mCurrent);
+            }
         }
+        ob.subscribe(new Consumer<Boolean>() {
+            @Override
+            public void accept(@NonNull Boolean aBoolean) throws Exception {
+                if (aBoolean){
+                    mView.Toast("操作成功");
+                }
+            }
+        });
     }
 
     @Override

@@ -7,4 +7,7 @@
     <item android:title="新建文件夹"
           app:showAsAction="never"
           android:id="@+id/menu_createFolder"/>
+    <item android:title="刷新"
+          app:showAsAction="never"
+          android:id="@+id/menu_refresh"/>
 </menu>

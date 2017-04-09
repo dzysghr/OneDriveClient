@@ -21,7 +21,7 @@ import com.dzy.onedriveclient.module.file.IFileView;
 import java.util.List;
 
 
-public class LocalFileFragment extends BaseFragment implements IFileView{
+public class LocalFileFragment extends BaseFragment implements IFileView, Toolbar.OnMenuItemClickListener {
 
     private RecyclerView mRecyclerView;
     private TextView mTvTitle;
@@ -40,24 +40,7 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
     protected void setupView() {
         Toolbar toolbar = bindView(R.id.toolbar);
         toolbar.inflateMenu(R.menu.file_menu);
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId()==R.id.menu_paste){
-                    mFilePresenter.paste(null);
-                }else if(item.getItemId()==R.id.menu_createFolder){
-                    CreateFolderDialog dialog =  new CreateFolderDialog(getContext());
-                    dialog.setDialogListener(new CreateFolderDialog.DialogListener() {
-                        @Override
-                        public void onOK(String name) {
-                            mFilePresenter.createFolder(name);
-                        }
-                    });
-                    dialog.show();
-                }
-                return false;
-            }
-        });
+        toolbar.setOnMenuItemClickListener(this);
 
         mAdapter = new FileListAdapter(null,R.layout.list_item_file);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -85,6 +68,8 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
         });
     }
 
+
+
     protected void onClick(IBaseFileBean bean){
         if (bean.isFolder()){
             mFilePresenter.open(bean);
@@ -94,7 +79,7 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
     }
 
     protected void onLongClick(IBaseFileBean bean){
-        // TODO: 2017/4/3 0003 show copy delete ...
+
     }
 
     @Override
@@ -145,6 +130,25 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
     @Override
     public boolean onBackPressed() {
         mFilePresenter.goBack();
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        if (item.getItemId()==R.id.menu_paste){
+            mFilePresenter.paste(null);
+        }else if(item.getItemId()==R.id.menu_createFolder){
+            CreateFolderDialog dialog =  new CreateFolderDialog(getContext());
+            dialog.setDialogListener(new CreateFolderDialog.DialogListener() {
+                @Override
+                public void onOK(String name) {
+                    mFilePresenter.createFolder(name);
+                }
+            });
+            dialog.show();
+        }else if (item.getItemId()==R.id.menu_refresh){
+            mFilePresenter.refresh();
+        }
         return true;
     }
 }
