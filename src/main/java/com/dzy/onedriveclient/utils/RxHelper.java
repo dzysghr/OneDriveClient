@@ -1,7 +1,16 @@
 package com.dzy.onedriveclient.utils;
 
+import android.util.Log;
+
 import com.dzy.commemlib.utils.NetworkUtils;
 import com.dzy.onedriveclient.config.BaseApplication;
+import com.dzy.onedriveclient.model.HTTPException;
+import com.dzy.onedriveclient.model.drive.DriveItem;
+import com.dzy.onedriveclient.model.drive.ResultBean;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -10,9 +19,17 @@ import io.reactivex.ObservableSource;
 import io.reactivex.ObservableTransformer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
+
+import static android.content.ContentValues.TAG;
+
 
 public class RxHelper {
+
+    private static Gson gson = new Gson();
 
     public static <T> ObservableTransformer<T, T> io_main() {
         return new ObservableTransformer<T, T>() {
@@ -22,6 +39,79 @@ public class RxHelper {
             }
         };
     }
+
+    public static ObservableTransformer<Response<ResponseBody>,List<DriveItem>> handleChildren() {
+        return new ObservableTransformer<Response<ResponseBody>, List<DriveItem>>() {
+            @Override
+            public ObservableSource<List<DriveItem>> apply(@NonNull Observable<Response<ResponseBody>> upstream) {
+                return  upstream.flatMap(new Function<Response<ResponseBody>, ObservableSource<List<DriveItem>>>() {
+                    @Override
+                    public ObservableSource<List<DriveItem>> apply(@NonNull Response<ResponseBody> response) throws Exception {
+                        String body;
+                        int code = response.code();
+                        if (code==200){
+                            body = response.body().string();
+                            ResultBean bean = gson.fromJson(body, ResultBean.class);
+                            return Observable.just(bean.value);
+                        }else {
+                            Log.e(TAG, "request error:"+response.toString());
+                            Log.e(TAG, "request error:"+response.errorBody().string());
+                            return Observable.error(new HTTPException(code));
+                        }
+                    }
+                });
+            }
+        };
+    }
+
+    public static <T> ObservableTransformer<Response<ResponseBody>,T> handle(final TypeToken<T> typeToken) {
+        return new ObservableTransformer<Response<ResponseBody>,T>() {
+            @Override
+            public ObservableSource<T> apply(@NonNull Observable<Response<ResponseBody>> upstream) {
+                return  upstream.flatMap(new Function<Response<ResponseBody>, ObservableSource<T>>() {
+                    @Override
+                    public ObservableSource<T> apply(@NonNull Response<ResponseBody> response) throws Exception {
+                        String body;
+                        int code = response.code();
+                        if (code==200){
+                            body = response.body().string();
+                            T bean = gson.fromJson(body,typeToken.getType());
+                            return Observable.just(bean);
+                        }else {
+                            Log.e(TAG, "request error:"+response.errorBody().string());
+                            return Observable.error(new HTTPException(code));
+                        }
+                    }
+                });
+            }
+        };
+    }
+
+
+
+
+//    public static <T> ObservableTransformer<Response<ResponseBody>, T> handle(final Type type) {
+//        return new ObservableTransformer<Response<ResponseBody>, T>() {
+//            @Override
+//            public ObservableSource<T> apply(@NonNull Observable<Response<ResponseBody>> upstream) {
+//                return  upstream.flatMap(new Function<Response<ResponseBody>, ObservableSource<T>>() {
+//                    @Override
+//                    public ObservableSource<T> apply(@NonNull Response<ResponseBody> response) throws Exception {
+//                        String body="";
+//                        if (response.code()==200){
+//                            body = response.body().string();
+//                            ResultBean bean = gson.fromJson(body, ResultBean.class);
+//                            return Observable.just(bean.value);
+//                        }else{
+//                            // TODO: 2017/4/9 0009 这里根据返回码确定错误类型
+//                            Log.e(TAG, "request error:"+response.errorBody().string());
+//                            return Observable.error(new RuntimeException("网络请求错误"));
+//                        }
+//                    }
+//                });
+//            }
+//        };
+//    }
 
     //
 //
@@ -75,10 +165,6 @@ public class RxHelper {
                 e.onComplete();
             }
         });
-    }
-
-    public static <T> Observable<T> io_main(Observable<T> ob) {
-        return ob.subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.io());
     }
 
     public interface IFun<T> {

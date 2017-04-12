@@ -13,6 +13,7 @@ import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.IBaseFileBean;
+import com.dzy.onedriveclient.model.local.LocalFileModel;
 import com.dzy.onedriveclient.module.file.CreateFolderDialog;
 import com.dzy.onedriveclient.module.file.FileListAdapter;
 import com.dzy.onedriveclient.module.file.IFilePresenter;
@@ -26,8 +27,8 @@ public class LocalFileFragment extends BaseFragment implements IFileView, Toolba
     private RecyclerView mRecyclerView;
     private TextView mTvTitle;
     private TextView mTvBack;
-    private FileListAdapter mAdapter;
-    private IFilePresenter mFilePresenter;
+    protected FileListAdapter mAdapter;
+    protected IFilePresenter mFilePresenter;
 
     @Override
     protected void initView() {
@@ -89,7 +90,7 @@ public class LocalFileFragment extends BaseFragment implements IFileView, Toolba
 
     @Override
     protected IBasePresenter initPresenter() {
-        mFilePresenter = new LocalFilePresenter();
+        mFilePresenter = new LocalFilePresenter(new LocalFileModel());
         return mFilePresenter;
     }
 

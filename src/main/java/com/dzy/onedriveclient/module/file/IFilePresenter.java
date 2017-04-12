@@ -3,9 +3,6 @@ package com.dzy.onedriveclient.module.file;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.IBaseFileBean;
 
-/**
- * Created by dzysg on 2017/4/3 0003.
- */
 
 public interface IFilePresenter extends IBasePresenter {
     void refresh();
@@ -15,7 +12,8 @@ public interface IFilePresenter extends IBasePresenter {
     void copy(IBaseFileBean bean);
     void cut(IBaseFileBean bean);
     void paste(IBaseFileBean bean);
-    void download(IBaseFileBean bean);
-    void upload(IBasePresenter bean);
     void createFolder(String name);
+    void loadMore();
+    void download(IBaseFileBean bean);
+    void upload(IBaseFileBean bean);
 }

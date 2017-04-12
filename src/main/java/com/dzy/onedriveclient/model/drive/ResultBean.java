@@ -1,11 +1,16 @@
 package com.dzy.onedriveclient.model.drive;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
-/**
- * Created by dzysg on 2017/4/2 0002.
- */
-
 public class ResultBean {
-    private List<DriveItem> value;
+
+    @SerializedName("@odata.context")
+    public String context;
+
+    public List<DriveItem> value;
+
+    @SerializedName("@odata.nextLink")
+    public String next;
 }

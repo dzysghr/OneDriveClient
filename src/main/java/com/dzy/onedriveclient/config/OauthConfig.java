@@ -16,7 +16,7 @@ public class OauthConfig {
     }
 
     public String toUrl(){
-        return mBaseUrl+"client_id="+mClientId+"&scope="+mScope+"&response_type="+mResponse_type+"&redirect_uri"+mRedirectUrl;
+        return mBaseUrl+"client_id="+mClientId+"&scope="+mScope+"&response_type="+mResponse_type+"&redirect_uri="+mRedirectUrl;
     }
 
 
@@ -28,7 +28,7 @@ public class OauthConfig {
                 return new Builder()
                         .baseUrl("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?")
                         .clientId(Constants.APP_ID)
-                        .redirectUrl("http://localhost")
+                        .redirectUrl(Constants.REDIRECT_URI)
                         .responseType("code")
                         .scope("files.readwrite offline_access")
                         .Build();

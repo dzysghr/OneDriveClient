@@ -1,6 +1,7 @@
 package com.dzy.onedriveclient.module;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -8,7 +9,14 @@ import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.config.Constants;
 import com.dzy.onedriveclient.core.BaseActivity;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
+import com.dzy.onedriveclient.model.ModelFactory;
+import com.dzy.onedriveclient.model.drive.TokenBean;
+import com.dzy.onedriveclient.model.drive.TokenModel;
 import com.dzy.onedriveclient.module.login.LoginActivity;
+import com.dzy.onedriveclient.utils.RxHelper;
+
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
 
 public class WelcomeActivity extends BaseActivity {
 
@@ -25,12 +33,44 @@ public class WelcomeActivity extends BaseActivity {
         mBtnOneDrive.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(WelcomeActivity.this, LoginActivity.class);
-                i.putExtra(Constants.INTENT_KEY_COM_TYPE,Constants.INTENT_VALUE_COM_ONEDRIVE);
-                startActivity(i);
+                openLoginActivity();
             }
         });
-        // TODO: 2017/4/2 0002 判断登录与否
+    }
+
+    private void openLoginActivity(){
+        Intent i = new Intent(WelcomeActivity.this, LoginActivity.class);
+        i.putExtra(Constants.INTENT_KEY_COM_TYPE,Constants.INTENT_VALUE_COM_ONEDRIVE);
+        startActivity(i);
+        finish();
+    }
+
+    @Override
+    public void afterSetContent() {
+        super.afterSetContent();
+        checkLogin();
+    }
+
+    protected void checkLogin(){
+        TokenModel model = ModelFactory.getTokenModel();
+        TokenBean bean = model.getTokenFromDb();
+        if (bean!=null){
+            model.refreshToken(bean)
+                    .compose(RxHelper.<TokenBean>io_main())
+                    .subscribe(new Consumer<TokenBean>() {
+                        @Override
+                        public void accept(@NonNull TokenBean bean) throws Exception {
+                            Constants.sToken = bean;
+                            startActivity(MainActivity.class);
+                            finish();
+                        }
+                    }, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(@NonNull Throwable throwable) throws Exception {
+                            Log.e(TAG, "accept: ", throwable);
+                        }
+                    });
+        }
     }
 
     @Override

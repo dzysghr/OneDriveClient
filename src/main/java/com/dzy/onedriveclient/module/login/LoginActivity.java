@@ -1,8 +1,8 @@
 
 package com.dzy.onedriveclient.module.login;
 
-import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -16,13 +16,21 @@ import com.dzy.onedriveclient.config.Constants;
 import com.dzy.onedriveclient.config.OauthConfig;
 import com.dzy.onedriveclient.core.BaseActivity;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
+import com.dzy.onedriveclient.model.ModelFactory;
+import com.dzy.onedriveclient.model.drive.TokenBean;
+import com.dzy.onedriveclient.model.drive.TokenModel;
 import com.dzy.onedriveclient.module.MainActivity;
+import com.dzy.onedriveclient.utils.RxHelper;
+
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
 
 public class LoginActivity extends BaseActivity {
 
 
     private WebView mWebView;
     private ProgressBar mProgressBar;
+    private boolean mGetCode =false;
 
     @Override
     protected void initView() {
@@ -43,7 +51,9 @@ public class LoginActivity extends BaseActivity {
 
         //设置webview属性能够执行javascript脚本
         mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+        mWebView.clearCache(true);
+        mWebView.clearHistory();
+        mWebView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         mWebView.setWebChromeClient(new WebChromeClient());
         //设置webView可以缩放，只可以双击缩放
         mWebView.getSettings().setSupportZoom(true);
@@ -62,11 +72,12 @@ public class LoginActivity extends BaseActivity {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 LogUtils.d(TAG, url);
-                if (url.contains("?code=")) {
+                if (url.contains("?code=")&&!mGetCode) {
+
                     Constants.CODE = url.substring(url.indexOf("?code=") + "?code=".length());
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+                    Log.e(TAG, "onPageFinished: "+Constants.CODE);
+                    getToken();
+                    mGetCode = true;
 
                 } else if (url.contains("error=access_denied")) {
                     LogUtils.e(TAG, url);
@@ -89,6 +100,23 @@ public class LoginActivity extends BaseActivity {
         mWebView.clearCache(false);
         mWebView.loadUrl(config.toUrl());
     }
+
+
+    private void getToken(){
+        TokenModel model =  ModelFactory.getTokenModel();
+        model.getToken(Constants.CODE)
+                .compose(RxHelper.<TokenBean>io_main())
+                .subscribe(new Consumer<TokenBean>() {
+                    @Override
+                    public void accept(@NonNull TokenBean bean) throws Exception {
+                        Constants.sToken =bean;
+                        ModelFactory.getTokenModel().saveToken(bean);
+                        startActivity(MainActivity.class);
+                        finish();
+                    }
+                });
+    }
+
 
     @Override
     protected int getLayoutId() {

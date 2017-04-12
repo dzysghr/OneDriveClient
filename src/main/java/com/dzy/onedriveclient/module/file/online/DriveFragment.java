@@ -1,41 +1,17 @@
 package com.dzy.onedriveclient.module.file.online;
 
-import android.util.Log;
-
-import com.dzy.onedriveclient.R;
-import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
+import com.dzy.onedriveclient.model.drive.OneDriveFileModel;
+import com.dzy.onedriveclient.module.file.IFilePresenter;
+import com.dzy.onedriveclient.module.file.local.LocalFileFragment;
 
-/**
- * Created by dzysg on 2017/4/2 0002.
- */
+public class DriveFragment extends LocalFileFragment {
 
-public class DriveFragment extends BaseFragment {
-
-
-    @Override
-    protected void initView() {
-
-    }
-
-    @Override
-    protected void setupView() {
-
-    }
-
-    @Override
-    protected int getLayoutId() {
-        return R.layout.fragment_drive;
-    }
+    private IFilePresenter mIFilePresenter;
 
     @Override
     protected IBasePresenter initPresenter() {
-        return null;
+        mFilePresenter = new DrivePresenter(new OneDriveFileModel());
+        return mFilePresenter;
     }
-
-    @Override
-    protected void LazyLoad() {
-        Log.e(TAG, "LazyLoad: Drive");
-    }
-
 }

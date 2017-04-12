@@ -27,6 +27,11 @@ public class LocalFileModel implements IFileModel {
     }
 
     @Override
+    public Observable<List<IBaseFileBean>> getChildren(String path) {
+        return getChildren(new LocalFileBean(new File(path)));
+    }
+
+    @Override
     public Observable<List<IBaseFileBean>> getChildren(final IBaseFileBean bean) {
         return RxHelper.create(new RxHelper.IFun<List<IBaseFileBean>>() {
             @Override
@@ -106,16 +111,6 @@ public class LocalFileModel implements IFileModel {
             }
         });
 
-    }
-
-    @Override
-    public Observable<IBaseFileBean> getRoot() {
-        return RxHelper.create(new RxHelper.IFun<IBaseFileBean>() {
-            @Override
-            public IBaseFileBean fun() {
-                return new LocalFileBean(mRoot);
-            }
-        });
     }
 
     private static List<IBaseFileBean> genChild(File file) {
