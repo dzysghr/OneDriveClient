@@ -3,4 +3,5 @@
     <string name="access_denied">认证失败</string>
     <string name="token_expire">登陆信息过期</string>
     <string name="ok">OK</string>
+    <string name="something_wrong">出错啦</string>
 </resources>

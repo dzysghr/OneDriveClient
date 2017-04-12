@@ -9,4 +9,5 @@ public interface IFileView extends IBaseVIew{
 
     void showFileList(List<IBaseFileBean> list);
     void showTitleAndParent(String title,String parent);
+    void showErrorView();
 }

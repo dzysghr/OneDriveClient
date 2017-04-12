@@ -44,6 +44,7 @@ public class LocalFileFragment extends BaseFragment implements IFileView, Toolba
         toolbar.setOnMenuItemClickListener(this);
 
         mAdapter = new FileListAdapter(null,R.layout.list_item_file);
+        mAdapter.setErrorLayoutId(R.layout.list_item_error);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(new CommonAdapter.OnItemClickListener() {
@@ -109,6 +110,11 @@ public class LocalFileFragment extends BaseFragment implements IFileView, Toolba
     public void showTitleAndParent(String title, String parent) {
         mTvTitle.setText(title);
         mTvBack.setText(parent);
+    }
+
+    @Override
+    public void showErrorView() {
+        mAdapter.showErrorView();
     }
 
     @Override

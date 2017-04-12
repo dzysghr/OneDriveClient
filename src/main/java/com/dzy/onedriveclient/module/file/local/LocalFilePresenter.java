@@ -30,14 +30,15 @@ public class LocalFilePresenter implements IFilePresenter {
         public void accept(@NonNull Throwable throwable) throws Exception {
             mView.Toast(throwable.getMessage());
             mView.hideProgress();
-            mStack = new Stack<>();
-            mStack.push(null);
+            mView.showErrorView();
         }
     };
 
 
     public LocalFilePresenter(IFileModel model){
         mFileModel = model;
+        mStack = new Stack<>();
+        mStack.push(null);
     }
 
     @Override
@@ -52,7 +53,7 @@ public class LocalFilePresenter implements IFilePresenter {
 
     @Override
     public void resume() {
-        refresh();
+
     }
 
     @Override
@@ -65,22 +66,24 @@ public class LocalFilePresenter implements IFilePresenter {
                     public void accept(@NonNull List<IBaseFileBean> list) throws Exception {
                         mView.showFileList(list);
                         mView.hideProgress();
-                        mStack.push(mCurrent);
                     }
                 },mErrorConsumer);
 
         if (mLevel == 0) {
-            mView.showTitleAndParent("根目录", null);
+            mView.showTitleAndParent("<root", null);
         } else {
             mView.showTitleAndParent(mCurrent.getName(),getParentName());
+        }
+        if (mStack.peek()!=mCurrent){
+            mStack.push(mCurrent);
         }
     }
 
     private String getParentName(){
         if (mStack.peek()==null){
-            return "root";
+            return "<root";
         }else{
-            return mStack.peek().getName();
+            return "<"+mStack.peek().getName();
         }
     }
 
@@ -114,7 +117,8 @@ public class LocalFilePresenter implements IFilePresenter {
             return;
         }
         mLevel--;
-        mCurrent = mStack.pop();
+        mStack.pop();
+        mCurrent = mStack.peek();
         refresh();
 
     }
