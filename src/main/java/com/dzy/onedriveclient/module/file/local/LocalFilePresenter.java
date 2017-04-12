@@ -38,7 +38,6 @@ public class LocalFilePresenter implements IFilePresenter {
     public LocalFilePresenter(IFileModel model){
         mFileModel = model;
         mStack = new Stack<>();
-        mStack.push(null);
     }
 
     @Override
@@ -70,12 +69,9 @@ public class LocalFilePresenter implements IFilePresenter {
                 },mErrorConsumer);
 
         if (mLevel == 0) {
-            mView.showTitleAndParent("<root", null);
+            mView.showTitleAndParent("root", null);
         } else {
             mView.showTitleAndParent(mCurrent.getName(),getParentName());
-        }
-        if (mStack.peek()!=mCurrent){
-            mStack.push(mCurrent);
         }
     }
 
@@ -91,10 +87,23 @@ public class LocalFilePresenter implements IFilePresenter {
     @Override
     public void open(IBaseFileBean bean) {
         if (bean.isFolder()) {
+            mStack.push(mCurrent);
             mCurrent = bean;
             mLevel++;
             refresh();
         }
+    }
+
+    @Override
+    public void goBack() {
+        if (mLevel==0) {
+            mView.close();
+            return;
+        }
+        mLevel--;
+        mCurrent = mStack.pop();
+        refresh();
+
     }
 
     @Override
@@ -110,18 +119,7 @@ public class LocalFilePresenter implements IFilePresenter {
         },mErrorConsumer);
     }
 
-    @Override
-    public void goBack() {
-        if (mLevel==0) {
-            mView.close();
-            return;
-        }
-        mLevel--;
-        mStack.pop();
-        mCurrent = mStack.peek();
-        refresh();
 
-    }
 
     @Override
     public void copy(IBaseFileBean bean) {
