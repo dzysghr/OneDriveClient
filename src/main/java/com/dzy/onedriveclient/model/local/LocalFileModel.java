@@ -86,17 +86,17 @@ public class LocalFileModel implements IFileModel {
     }
 
     @Override
-    public Observable<Boolean> createFolder(final IBaseFileBean parent, final String name) {
-        return RxHelper.create(new RxHelper.IFun<Boolean>() {
+    public Observable<IBaseFileBean> createFolder(final IBaseFileBean parent, final String name) {
+        return RxHelper.create(new RxHelper.IFun<IBaseFileBean>() {
             @Override
-            public Boolean fun() {
+            public IBaseFileBean fun() {
                 File file = mRoot;
                 if (parent!=null){
                     file = (File) parent.getReal();
                 }
                 file = new File(file,name);
                 FileUtils.createFolder(file);
-                return true;
+                return new LocalFileBean(file);
             }
         });
     }

@@ -165,17 +165,16 @@ public class LocalFilePresenter implements IFilePresenter {
     @Override
     public void createFolder(String name) {
         mFileModel.createFolder(mCurrent,name)
-                .doOnNext(new Consumer<Boolean>() {
+                .compose(RxHelper.<IBaseFileBean>io_main())
+                .doOnNext(new Consumer<IBaseFileBean>() {
                     @Override
-                    public void accept(@NonNull Boolean aBoolean) throws Exception {
+                    public void accept(@NonNull IBaseFileBean bean) throws Exception {
                         refresh();
                     }
-                }).subscribe(new Consumer<Boolean>() {
+                }).subscribe(new Consumer<IBaseFileBean>() {
             @Override
-            public void accept(@NonNull Boolean aBoolean) throws Exception {
-                if (aBoolean){
+            public void accept(@NonNull IBaseFileBean bean) throws Exception {
                     mView.Toast("操作成功");
-                }
             }
         },mErrorConsumer);
     }

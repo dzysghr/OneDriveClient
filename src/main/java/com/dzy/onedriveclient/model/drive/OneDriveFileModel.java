@@ -5,6 +5,7 @@ import com.dzy.onedriveclient.model.IBaseFileBean;
 import com.dzy.onedriveclient.model.IFileModel;
 import com.dzy.onedriveclient.model.ModelFactory;
 import com.dzy.onedriveclient.utils.RxHelper;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -15,6 +16,10 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 
 public class OneDriveFileModel implements IFileModel {
@@ -98,8 +103,26 @@ public class OneDriveFileModel implements IFileModel {
     }
 
     @Override
-    public Observable<Boolean> createFolder(IBaseFileBean parent, String name) {
-        return null;
+    public Observable<IBaseFileBean> createFolder(IBaseFileBean parent, String name) {
+
+        String json="{\"name\":\""+name+"\", \"folder\": { }}";
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"),json);
+
+
+        Observable<Response<ResponseBody>> observable = null;
+        if (parent==null){
+            observable = mIDriveFileModel.createFolderByPath("root",requestBody);
+        }else {
+            DriveFile file = (DriveFile) parent;
+            observable = mIDriveFileModel.createFolder(file.getId(),requestBody);
+        }
+        return observable.compose(RxHelper.handle(new TypeToken<DriveItem>(){},201))
+                .flatMap(new Function<DriveItem, ObservableSource<IBaseFileBean>>() {
+                    @Override
+                    public ObservableSource<IBaseFileBean> apply(@NonNull DriveItem driveItem) throws Exception {
+                        return Observable.just((IBaseFileBean)new DriveFile(driveItem));
+                    }
+                });
     }
 
     @Override

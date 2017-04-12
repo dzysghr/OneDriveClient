@@ -12,6 +12,6 @@ public interface IFileModel {
     Observable<Boolean> delete(final IBaseFileBean bean);
     Observable<Boolean> copy(final IBaseFileBean from,final IBaseFileBean to);
     Observable<Boolean> cut(final IBaseFileBean from,IBaseFileBean to);
-    Observable<Boolean> createFolder(final IBaseFileBean parent,final  String name);
+    Observable<IBaseFileBean> createFolder(final IBaseFileBean parent,final  String name);
     Observable<Boolean> exists(final IBaseFileBean bean);
 }
