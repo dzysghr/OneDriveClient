@@ -40,6 +40,27 @@ public class RxHelper {
         };
     }
 
+    public static ObservableTransformer<Response<ResponseBody>,Boolean> handleEmptyRespone(final int responeCode) {
+        return new ObservableTransformer<Response<ResponseBody>,Boolean>() {
+            @Override
+            public ObservableSource<Boolean> apply(@NonNull Observable<Response<ResponseBody>> upstream) {
+                return  upstream.flatMap(new Function<Response<ResponseBody>, ObservableSource<Boolean>>() {
+                    @Override
+                    public ObservableSource<Boolean> apply(@NonNull Response<ResponseBody> response) throws Exception {
+                        int code = response.code();
+                        if (code==responeCode){
+                            return Observable.just(true);
+                        }else {
+                            Log.e(TAG, "request error:"+response.toString());
+                            Log.e(TAG, "request error:"+response.errorBody().string());
+                            return Observable.error(new HTTPException(code));
+                        }
+                    }
+                });
+            }
+        };
+    }
+
     public static ObservableTransformer<Response<ResponseBody>,List<DriveItem>> handleChildren() {
         return new ObservableTransformer<Response<ResponseBody>, List<DriveItem>>() {
             @Override

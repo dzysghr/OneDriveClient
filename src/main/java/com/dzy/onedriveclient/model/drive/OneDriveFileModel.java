@@ -94,7 +94,27 @@ public class OneDriveFileModel implements IFileModel {
 
     @Override
     public Observable<Boolean> copy(IBaseFileBean from, IBaseFileBean to) {
-        return null;
+        DriveFile file = (DriveFile) from;
+        String json;
+        if (to==null){
+            json = "{\n" +
+                    "  \"parentReference\": {\n" +
+                    "    \"path\": \"/drive/root\"\n" +
+                    "  }\n" +
+                    "}";
+        }else{
+            DriveFile fileTo = (DriveFile) to;
+            json = "{\n" +
+                    "  \"parentReference\": {\n" +
+                    "    \"id\": \""+fileTo.getId()+"\"\n" +
+                    "  }\n" +
+                    "}";
+        }
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"),json);
+
+        return mIDriveFileModel.copy(file.getId(),requestBody)
+                .compose(RxHelper.handleEmptyRespone(202));
     }
 
     @Override
@@ -120,7 +140,7 @@ public class OneDriveFileModel implements IFileModel {
                 .flatMap(new Function<DriveItem, ObservableSource<IBaseFileBean>>() {
                     @Override
                     public ObservableSource<IBaseFileBean> apply(@NonNull DriveItem driveItem) throws Exception {
-                        return Observable.just((IBaseFileBean)new DriveFile(driveItem));
+                        return Observable.just(convertToFileBean(driveItem));
                     }
                 });
     }
