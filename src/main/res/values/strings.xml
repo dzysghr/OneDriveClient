@@ -4,4 +4,6 @@
     <string name="token_expire">登陆信息过期</string>
     <string name="ok">OK</string>
     <string name="something_wrong">出错啦</string>
+    <string name="list_empty">这个列表的空的</string>
+    <string name="root">root</string>
 </resources>

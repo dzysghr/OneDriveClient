@@ -2,11 +2,8 @@ package com.dzy.onedriveclient.module.file.local;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.dzy.commemlib.ui.BaseAdapter.CommonAdapter;
 import com.dzy.onedriveclient.R;
@@ -14,37 +11,33 @@ import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.IBaseFileBean;
 import com.dzy.onedriveclient.model.local.LocalFileModel;
-import com.dzy.onedriveclient.module.file.CreateFolderDialog;
 import com.dzy.onedriveclient.module.file.FileListAdapter;
 import com.dzy.onedriveclient.module.file.IFilePresenter;
 import com.dzy.onedriveclient.module.file.IFileView;
+import com.dzy.onedriveclient.module.file.NavigationParentFragment;
 
 import java.util.List;
 
 
-public class LocalFileFragment extends BaseFragment implements IFileView, Toolbar.OnMenuItemClickListener {
+public class LocalFileFragment extends BaseFragment implements IFileView{
 
     private RecyclerView mRecyclerView;
-    private TextView mTvTitle;
-    private TextView mTvBack;
     protected FileListAdapter mAdapter;
     protected IFilePresenter mFilePresenter;
+    private IBaseFileBean mCurrent;
+
 
     @Override
     protected void initView() {
         mRecyclerView = bindView(R.id.local_recycleView);
-        mTvTitle = bindView(R.id.tv_title);
-        mTvBack = bindView(R.id.tv_back);
     }
 
     @Override
     protected void setupView() {
-        Toolbar toolbar = bindView(R.id.toolbar);
-        toolbar.inflateMenu(R.menu.file_menu);
-        toolbar.setOnMenuItemClickListener(this);
 
         mAdapter = new FileListAdapter(null,R.layout.list_item_file);
         mAdapter.setErrorLayoutId(R.layout.list_item_error);
+        mAdapter.setEmptyLayoutId(R.layout.list_item_empty);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(new CommonAdapter.OnItemClickListener() {
@@ -61,28 +54,27 @@ public class LocalFileFragment extends BaseFragment implements IFileView, Toolba
                 return true;
             }
         });
-
-        mTvBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mFilePresenter.goBack();
-            }
-        });
+        mFilePresenter.open(mCurrent);
     }
 
 
 
     protected void onClick(IBaseFileBean bean){
         if (bean.isFolder()){
-            mFilePresenter.open(bean);
+           getParent().navigateTo(bean);
         }else{
             // TODO: 2017/4/3 0003 show dialog to select open type
         }
     }
 
+    private  NavigationParentFragment getParent(){
+        return (NavigationParentFragment) getParentFragment();
+    }
+
     protected void onLongClick(IBaseFileBean bean){
 
     }
+
 
     @Override
     protected int getLayoutId() {
@@ -97,19 +89,12 @@ public class LocalFileFragment extends BaseFragment implements IFileView, Toolba
 
     @Override
     protected void LazyLoad() {
-        mFilePresenter.refresh();
-        Log.e(TAG, "LazyLoad: local");
+
     }
 
     @Override
     public void showFileList(List<IBaseFileBean> list) {
         mAdapter.setData(list);
-    }
-
-    @Override
-    public void showTitleAndParent(String title, String parent) {
-        mTvTitle.setText(title);
-        mTvBack.setText(parent);
     }
 
     @Override
@@ -134,28 +119,8 @@ public class LocalFileFragment extends BaseFragment implements IFileView, Toolba
         getActivity().finish();
     }
 
-    @Override
-    public boolean onBackPressed() {
-        mFilePresenter.goBack();
-        return true;
-    }
 
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        if (item.getItemId()==R.id.menu_paste){
-            mFilePresenter.paste(null);
-        }else if(item.getItemId()==R.id.menu_createFolder){
-            CreateFolderDialog dialog =  new CreateFolderDialog(getContext());
-            dialog.setDialogListener(new CreateFolderDialog.DialogListener() {
-                @Override
-                public void onOK(String name) {
-                    mFilePresenter.createFolder(name);
-                }
-            });
-            dialog.show();
-        }else if (item.getItemId()==R.id.menu_refresh){
-            mFilePresenter.refresh();
-        }
-        return true;
+    public void setCurrent(IBaseFileBean current) {
+        mCurrent = current;
     }
 }

@@ -8,7 +8,6 @@ import com.dzy.onedriveclient.module.file.IFileView;
 import com.dzy.onedriveclient.utils.RxHelper;
 
 import java.util.List;
-import java.util.Stack;
 
 import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
@@ -22,8 +21,7 @@ public class LocalFilePresenter implements IFilePresenter {
     protected IFileModel mFileModel;
     protected IBaseFileBean mCopyOrCut;
     protected boolean mIsCopy;
-    private int mLevel = 0;
-    private Stack<IBaseFileBean> mStack;
+
 
     private Consumer<Throwable> mErrorConsumer  = new Consumer<Throwable>() {
         @Override
@@ -37,7 +35,6 @@ public class LocalFilePresenter implements IFilePresenter {
 
     public LocalFilePresenter(IFileModel model){
         mFileModel = model;
-        mStack = new Stack<>();
     }
 
     @Override
@@ -67,43 +64,15 @@ public class LocalFilePresenter implements IFilePresenter {
                         mView.hideProgress();
                     }
                 },mErrorConsumer);
-
-        if (mLevel == 0) {
-            mView.showTitleAndParent("root", null);
-        } else {
-            mView.showTitleAndParent(mCurrent.getName(),getParentName());
-        }
-    }
-
-    private String getParentName(){
-        if (mStack.peek()==null){
-            return "<root";
-        }else{
-            return "<"+mStack.peek().getName();
-        }
     }
 
 
     @Override
     public void open(IBaseFileBean bean) {
-        if (bean.isFolder()) {
-            mStack.push(mCurrent);
+         if (bean==null||bean.isFolder()) {
             mCurrent = bean;
-            mLevel++;
             refresh();
         }
-    }
-
-    @Override
-    public void goBack() {
-        if (mLevel==0) {
-            mView.close();
-            return;
-        }
-        mLevel--;
-        mCurrent = mStack.pop();
-        refresh();
-
     }
 
     @Override
@@ -119,6 +88,10 @@ public class LocalFilePresenter implements IFilePresenter {
         },mErrorConsumer);
     }
 
+    @Override
+    public void goBack() {
+
+    }
 
 
     @Override

@@ -52,7 +52,7 @@ public class WelcomeActivity extends BaseActivity {
     }
 
     protected void checkLogin(){
-        TokenModel model = ModelFactory.getTokenModel();
+        final TokenModel model = ModelFactory.getTokenModel();
         TokenBean bean = model.getTokenFromDb();
         if (bean!=null){
             model.refreshToken(bean)
