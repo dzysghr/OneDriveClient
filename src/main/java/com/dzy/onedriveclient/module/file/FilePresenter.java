@@ -12,7 +12,7 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 
 
-public class LocalFilePresenter implements IFilePresenter {
+public class FilePresenter implements IFilePresenter {
 
     protected IFileView mView;
     protected IBaseFileBean mCurrent;
@@ -31,7 +31,7 @@ public class LocalFilePresenter implements IFilePresenter {
     };
 
 
-    public LocalFilePresenter(IFileModel model){
+    public FilePresenter(IFileModel model){
         mFileModel = model;
     }
 

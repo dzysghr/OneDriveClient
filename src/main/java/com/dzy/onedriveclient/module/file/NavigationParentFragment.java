@@ -30,7 +30,7 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
     public static final String KEY_TYPE = "type";
     public static final int TYPE_LOCAL = 0;
     public static final int TYPE_ONEDRIVE = 1;
-    private LocalFileFragment mCurrent;
+    private FileFragment mCurrent;
     private IFilePresenter mPresenter;
 
 
@@ -53,9 +53,9 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
     @Override
     protected void setupView() {
         if (mType==TYPE_LOCAL){
-            mPresenter = new LocalFilePresenter(new LocalFileModel());
+            mPresenter = new FilePresenter(new LocalFileModel());
         }else{
-            mPresenter = new LocalFilePresenter(new OneDriveFileModel());
+            mPresenter = new FilePresenter(new OneDriveFileModel());
         }
 
         Toolbar toolbar = bindView(R.id.toolbar);
@@ -91,15 +91,15 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
 
     }
 
-    private LocalFileFragment getInstance(){
-        LocalFileFragment fileFragment= new LocalFileFragment();
+    private FileFragment getInstance(){
+        FileFragment fileFragment= new FileFragment();
         fileFragment.setFilePresenter(mPresenter);
         return fileFragment;
     }
 
     public void navigateTo(IBaseFileBean bean){
         mTvTitle.setText(bean.getName());
-        LocalFileFragment fileFragment = getInstance();
+        FileFragment fileFragment = getInstance();
         fileFragment.setCurrent(bean);
         mFragmentManager
                 .beginTransaction()

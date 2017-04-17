@@ -10,15 +10,11 @@ import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.IBaseFileBean;
-import com.dzy.onedriveclient.module.file.FileListAdapter;
-import com.dzy.onedriveclient.module.file.IFilePresenter;
-import com.dzy.onedriveclient.module.file.IFileView;
-import com.dzy.onedriveclient.module.file.NavigationParentFragment;
 
 import java.util.List;
 
 
-public class LocalFileFragment extends BaseFragment implements IFileView{
+public class FileFragment extends BaseFragment implements IFileView{
 
     private RecyclerView mRecyclerView;
     protected FileListAdapter mAdapter;
