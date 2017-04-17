@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.module.file.local;
+package com.dzy.onedriveclient.module.file;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,7 +10,6 @@ import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.IBaseFileBean;
-import com.dzy.onedriveclient.model.local.LocalFileModel;
 import com.dzy.onedriveclient.module.file.FileListAdapter;
 import com.dzy.onedriveclient.module.file.IFilePresenter;
 import com.dzy.onedriveclient.module.file.IFileView;
@@ -75,6 +74,11 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mFilePresenter.attachView(this);
+    }
 
     @Override
     protected int getLayoutId() {
@@ -83,8 +87,7 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
 
     @Override
     protected IBasePresenter initPresenter() {
-        mFilePresenter = new LocalFilePresenter(new LocalFileModel());
-        return mFilePresenter;
+        return null;
     }
 
     @Override
@@ -114,6 +117,8 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
         Log.e(TAG, "onDestroyView: ");
     }
 
+
+
     @Override
     public void close() {
         getActivity().finish();
@@ -122,5 +127,15 @@ public class LocalFileFragment extends BaseFragment implements IFileView{
 
     public void setCurrent(IBaseFileBean current) {
         mCurrent = current;
+    }
+
+    public IFilePresenter getFilePresenter() {
+        return mFilePresenter;
+    }
+
+    public void setFilePresenter(IFilePresenter filePresenter) {
+        setBasePresenter(filePresenter);
+        mFilePresenter = filePresenter;
+        mFilePresenter.attachView(this);
     }
 }

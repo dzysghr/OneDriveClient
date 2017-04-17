@@ -24,7 +24,7 @@ public abstract class BaseFragment extends Fragment {
     protected abstract IBasePresenter initPresenter();
     protected abstract void LazyLoad();
     protected String TAG = "BaseFragment";
-    private IBasePresenter mPresenter;
+    private IBasePresenter mBasePresenter;
     private boolean mFirstLoad = true;
     private boolean mViewCreated = false;
     private View mParent;
@@ -33,9 +33,9 @@ public abstract class BaseFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TAG = this.getClass().getSimpleName();
-        mPresenter = initPresenter();
-        if (mPresenter!=null&&this instanceof IBaseVIew){
-            mPresenter.attachView((IBaseVIew) this);
+        mBasePresenter = initPresenter();
+        if (mBasePresenter !=null&&this instanceof IBaseVIew){
+            mBasePresenter.attachView((IBaseVIew) this);
         }
     }
 
@@ -87,14 +87,22 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mPresenter!=null){
-            mPresenter.unSubscribe();
+        if (mBasePresenter !=null){
+            mBasePresenter.unSubscribe();
         }
     }
 
     public void  startActivity(Class<?> activity){
         Intent i = new Intent(getActivity(),activity);
         startActivity(i);
+    }
+
+    public IBasePresenter getBasePresenter() {
+        return mBasePresenter;
+    }
+
+    public void setBasePresenter(IBasePresenter basePresenter) {
+        mBasePresenter = basePresenter;
     }
 
     public void Toast(String msg){

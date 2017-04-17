@@ -1,10 +1,8 @@
-package com.dzy.onedriveclient.module.file.local;
+package com.dzy.onedriveclient.module.file;
 
 import com.dzy.onedriveclient.core.mvp.IBaseVIew;
 import com.dzy.onedriveclient.model.IBaseFileBean;
 import com.dzy.onedriveclient.model.IFileModel;
-import com.dzy.onedriveclient.module.file.IFilePresenter;
-import com.dzy.onedriveclient.module.file.IFileView;
 import com.dzy.onedriveclient.utils.RxHelper;
 
 import java.util.List;

@@ -12,8 +12,8 @@ import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.IBaseFileBean;
-import com.dzy.onedriveclient.module.file.local.LocalFileFragment;
-import com.dzy.onedriveclient.module.file.online.DriveFragment;
+import com.dzy.onedriveclient.model.drive.OneDriveFileModel;
+import com.dzy.onedriveclient.model.local.LocalFileModel;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -30,6 +30,8 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
     public static final String KEY_TYPE = "type";
     public static final int TYPE_LOCAL = 0;
     public static final int TYPE_ONEDRIVE = 1;
+    private LocalFileFragment mCurrent;
+    private IFilePresenter mPresenter;
 
 
     public static NavigationParentFragment newInstance(int type){
@@ -50,6 +52,12 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
 
     @Override
     protected void setupView() {
+        if (mType==TYPE_LOCAL){
+            mPresenter = new LocalFilePresenter(new LocalFileModel());
+        }else{
+            mPresenter = new LocalFilePresenter(new OneDriveFileModel());
+        }
+
         Toolbar toolbar = bindView(R.id.toolbar);
         toolbar.inflateMenu(R.menu.file_menu);
         toolbar.setOnMenuItemClickListener(this);
@@ -61,9 +69,10 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
             }
         });
 
+        mCurrent = getInstance();
         mFragmentManager
                 .beginTransaction()
-                .add(R.id.container,getInstance())
+                .add(R.id.container,mCurrent)
                 .commit();
     }
 
@@ -83,11 +92,9 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
     }
 
     private LocalFileFragment getInstance(){
-        if (mType==TYPE_LOCAL){
-            return new LocalFileFragment();
-        }else{
-            return new DriveFragment();
-        }
+        LocalFileFragment fileFragment= new LocalFileFragment();
+        fileFragment.setFilePresenter(mPresenter);
+        return fileFragment;
     }
 
     public void navigateTo(IBaseFileBean bean){
@@ -100,7 +107,6 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
                 .addToBackStack(null)
                 .commit();
         mStacks.addLast(bean);
-
     }
 
     @Override
@@ -131,7 +137,8 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
             dialog.setDialogListener(new CreateFolderDialog.DialogListener() {
                 @Override
                 public void onOK(String name) {
-
+                    mPresenter.createFolder(name);
+                    mPresenter.refresh();
                 }
             });
             dialog.show();
