@@ -37,7 +37,7 @@ public class OneDriveFileModel implements IFileModel {
     }
 
     @Override
-    public Observable<List<IBaseFileBean>> getChildren(String path) {
+    public Observable<List<IBaseFileBean>> getChildren(String path,int cache) {
         return mIDriveFileModel.getListByPath(path, mSelectField, 10)
                 .compose(RxHelper.handleChildren())
                 .flatMap(new Function<List<DriveItem>, ObservableSource<List<IBaseFileBean>>>() {
@@ -50,9 +50,9 @@ public class OneDriveFileModel implements IFileModel {
     }
 
     @Override
-    public Observable<List<IBaseFileBean>> getChildren(IBaseFileBean bean) {
+    public Observable<List<IBaseFileBean>> getChildren(IBaseFileBean bean,int cache) {
         if (bean == null) {
-            return getChildren("root");
+            return getChildren("root",cache);
         } else {
             DriveFile file = (DriveFile) bean;
             DriveItem item = (DriveItem) file.getReal();

@@ -35,7 +35,7 @@ public class MainActivity extends BaseActivity {
                 return true;
             }
         });
-        mFragments.put(R.id.menu_drive,NavigationParentFragment.newInstance(NavigationParentFragment.TYPE_ONEDRIVE));
+        mFragments.put(R.id.menu_drive,NavigationParentFragment.newInstance(NavigationParentFragment.TYPE_LOCAL));
         mFragments.put(R.id.menu_local,NavigationParentFragment.newInstance(NavigationParentFragment.TYPE_LOCAL));
         mFragments.put(R.id.menu_more, new MoreFragment());
         mFragments.put(R.id.menu_transfer,new TransferFragment());
@@ -46,7 +46,6 @@ public class MainActivity extends BaseActivity {
                 .add(R.id.container,mCurrentFragment,R.id.menu_drive+"")
                 .show(mCurrentFragment)
                 .commit();
-        // TODO: 2017/4/5 0005 查看生命周期
     }
 
     @Override

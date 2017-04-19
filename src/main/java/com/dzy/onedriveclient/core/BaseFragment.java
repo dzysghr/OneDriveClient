@@ -1,5 +1,6 @@
 package com.dzy.onedriveclient.core;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
@@ -7,6 +8,7 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,14 +30,18 @@ public abstract class BaseFragment extends Fragment {
     private boolean mFirstLoad = true;
     private boolean mViewCreated = false;
     private View mParent;
+    private Context mContext;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TAG = this.getClass().getSimpleName();
-        mBasePresenter = initPresenter();
-        if (mBasePresenter !=null&&this instanceof IBaseVIew){
-            mBasePresenter.attachView((IBaseVIew) this);
+        IBasePresenter presenter = initPresenter();
+        if (presenter!=null){
+            mBasePresenter = presenter;
+            if (this instanceof IBaseVIew){
+                mBasePresenter.attachView((IBaseVIew) this);
+            }
         }
     }
 
@@ -85,6 +91,14 @@ public abstract class BaseFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (mBasePresenter!=null){
+            mBasePresenter.resume();
+        }
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         if (mBasePresenter !=null){
@@ -93,7 +107,7 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public void  startActivity(Class<?> activity){
-        Intent i = new Intent(getActivity(),activity);
+        Intent i = new Intent(mContext,activity);
         startActivity(i);
     }
 
@@ -106,7 +120,7 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public void Toast(String msg){
-        Toast.makeText(getContext(),msg,Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext,msg,Toast.LENGTH_SHORT).show();
     }
 
     public void close(){
@@ -114,7 +128,15 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public void dialog(String msg){
-        new AlertDialog.Builder(getContext()).setMessage(msg).create().show();
+        // TODO: 2017/4/17 0017 空指针
+        new AlertDialog.Builder(mContext).setMessage(msg).create().show();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
+        Log.d(TAG, "onAttach: "+context);
     }
 
     public <T> T bindView(@IdRes int id){

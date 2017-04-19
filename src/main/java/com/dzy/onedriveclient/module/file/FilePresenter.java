@@ -1,5 +1,7 @@
 package com.dzy.onedriveclient.module.file;
 
+import android.util.Log;
+
 import com.dzy.onedriveclient.core.mvp.IBaseVIew;
 import com.dzy.onedriveclient.model.IBaseFileBean;
 import com.dzy.onedriveclient.model.IFileModel;
@@ -24,6 +26,7 @@ public class FilePresenter implements IFilePresenter {
     private Consumer<Throwable> mErrorConsumer  = new Consumer<Throwable>() {
         @Override
         public void accept(@NonNull Throwable throwable) throws Exception {
+            Log.e("FilePresenter", "mErrorConsumer: ", throwable);
             mView.Toast(throwable.getMessage());
             mView.hideProgress();
             mView.showErrorView();
@@ -53,7 +56,7 @@ public class FilePresenter implements IFilePresenter {
     @Override
     public void refresh() {
         mView.showProgress();
-        mFileModel.getChildren(mCurrent)
+        mFileModel.getChildren(mCurrent,IFileModel.CACHE_NO)
                 .compose(RxHelper.<List<IBaseFileBean>>io_main())
                 .subscribe(new Consumer<List<IBaseFileBean>>() {
                     @Override
@@ -64,6 +67,10 @@ public class FilePresenter implements IFilePresenter {
                 },mErrorConsumer);
     }
 
+    @Override
+    public void setCurrent(IBaseFileBean bean) {
+        mCurrent = bean;
+    }
 
     @Override
     public void open(IBaseFileBean bean) {
@@ -137,12 +144,7 @@ public class FilePresenter implements IFilePresenter {
     public void createFolder(String name) {
         mFileModel.createFolder(mCurrent,name)
                 .compose(RxHelper.<IBaseFileBean>io_main())
-                .doOnNext(new Consumer<IBaseFileBean>() {
-                    @Override
-                    public void accept(@NonNull IBaseFileBean bean) throws Exception {
-                        refresh();
-                    }
-                }).subscribe(new Consumer<IBaseFileBean>() {
+                .subscribe(new Consumer<IBaseFileBean>() {
             @Override
             public void accept(@NonNull IBaseFileBean bean) throws Exception {
                     mView.Toast("操作成功");

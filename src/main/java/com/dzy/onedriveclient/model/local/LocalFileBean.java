@@ -19,6 +19,11 @@ public class LocalFileBean implements IBaseFileBean{
     }
 
     @Override
+    public String getPath() {
+        return mFile.getAbsolutePath();
+    }
+
+    @Override
     public String getName() {
         return mFile.getName();
     }
@@ -61,9 +66,7 @@ public class LocalFileBean implements IBaseFileBean{
     }
 
     @Override
-    public IBaseFileBean getParent() {
-        if (mParent==null&&mFile.getParent()!=null)
-            mParent = new LocalFileBean(mFile.getParentFile());
-        return mParent;
+    public String toString() {
+        return mFile.toString();
     }
 }

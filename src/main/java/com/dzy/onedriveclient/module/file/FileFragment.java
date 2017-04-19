@@ -58,7 +58,7 @@ public class FileFragment extends BaseFragment implements IFileView{
         if (bean.isFolder()){
            getParent().navigateTo(bean);
         }else{
-            // TODO: 2017/4/3 0003 show dialog to select open type
+            getParent().openItem(bean);
         }
     }
 
@@ -67,13 +67,7 @@ public class FileFragment extends BaseFragment implements IFileView{
     }
 
     protected void onLongClick(IBaseFileBean bean){
-
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mFilePresenter.attachView(this);
+        getParent().showOptionMenu(bean);
     }
 
     @Override
@@ -83,12 +77,13 @@ public class FileFragment extends BaseFragment implements IFileView{
 
     @Override
     protected IBasePresenter initPresenter() {
-        return null;
+        return mFilePresenter;
     }
 
     @Override
     protected void LazyLoad() {
-
+        mFilePresenter.attachView(this);
+        Log.d(TAG, "attachView: "+mCurrent);
     }
 
     @Override
@@ -102,22 +97,8 @@ public class FileFragment extends BaseFragment implements IFileView{
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.e(TAG, "onDestroy: ");
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.e(TAG, "onDestroyView: ");
-    }
-
-
-
-    @Override
     public void close() {
-        getActivity().finish();
+        getParent().onBackPressed();
     }
 
 

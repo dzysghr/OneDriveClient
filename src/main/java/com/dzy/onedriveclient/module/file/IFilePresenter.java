@@ -5,6 +5,8 @@ import com.dzy.onedriveclient.model.IBaseFileBean;
 
 
 public interface IFilePresenter extends IBasePresenter {
+
+    void setCurrent(IBaseFileBean bean);
     void refresh();
     void open(IBaseFileBean bean);
     void delete(IBaseFileBean bean);

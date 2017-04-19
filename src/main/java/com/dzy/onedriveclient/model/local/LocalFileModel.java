@@ -27,12 +27,12 @@ public class LocalFileModel implements IFileModel {
     }
 
     @Override
-    public Observable<List<IBaseFileBean>> getChildren(String path) {
-        return getChildren(new LocalFileBean(new File(path)));
+    public Observable<List<IBaseFileBean>> getChildren(String path,int cache) {
+        return getChildren(new LocalFileBean(new File(path)),cache);
     }
 
     @Override
-    public Observable<List<IBaseFileBean>> getChildren(final IBaseFileBean bean) {
+    public Observable<List<IBaseFileBean>> getChildren(final IBaseFileBean bean,int cache) {
         return RxHelper.create(new RxHelper.IFun<List<IBaseFileBean>>() {
             @Override
             public List<IBaseFileBean> fun() {
@@ -114,13 +114,14 @@ public class LocalFileModel implements IFileModel {
     }
 
     private static List<IBaseFileBean> genChild(File file) {
-        File[] array = file.listFiles();
         List<IBaseFileBean> list = new ArrayList<>();
+        File[] array = file.listFiles();
+        if (array==null){
+            return list;
+        }
         for (File item : array) {
             list.add(new LocalFileBean(item));
         }
         return list;
     }
-
-
 }
