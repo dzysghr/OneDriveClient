@@ -194,8 +194,7 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         if (item.getItemId()==R.id.menu_paste){
-
-
+            mPresenter.paste(mStacks.peekLast());
         }else if(item.getItemId()==R.id.menu_createFolder){
             CreateFolderDialog dialog =  new CreateFolderDialog(getContext());
             dialog.setDialogListener(new CreateFolderDialog.DialogListener() {

@@ -4,6 +4,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.dzy.commemlib.utils.FileUtils;
+import com.dzy.commemlib.utils.LogUtils;
 import com.dzy.onedriveclient.model.IBaseFileBean;
 import com.dzy.onedriveclient.model.IFileModel;
 import com.dzy.onedriveclient.utils.RxHelper;
@@ -13,13 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
-
-import static android.content.ContentValues.TAG;
+import io.reactivex.ObservableSource;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Function;
 
 
 public class LocalFileModel implements IFileModel {
 
     private File mRoot;
+    private static String TAG = "LocalFileModel";
 
     public LocalFileModel() {
         mRoot = Environment.getExternalStorageDirectory();
@@ -66,14 +69,27 @@ public class LocalFileModel implements IFileModel {
 
     @Override
     public Observable<Boolean> copy(final IBaseFileBean from, final IBaseFileBean to) {
-
         return RxHelper.create(new RxHelper.IFun<Boolean>() {
             @Override
-            public Boolean fun() {
-                if (!from.isFolder() && to.isFolder()) {
-                    FileUtils.safeNIOTransferCopy((File) from.getReal(), new File((File) to.getReal(), from.getName()));
-                } else if (from.isFolder() && to.isFolder()) {
-                    FileUtils.copyDirectory((File) from.getReal(), new File((File) to.getReal(), from.getName()));
+            public Boolean fun() throws Exception{
+                File target = to==null?mRoot:(File)to.getReal();
+                if (!target.exists()){
+                    LogUtils.d(TAG,"the target is not exists");
+                    return false;
+                }
+                if (target.isFile()){
+                    LogUtils.d(TAG,"the target is a file");
+                    return false;
+                }
+                File source = (File) from.getReal();
+                if (source.getParent().equals(target.getPath())){
+                    return false;
+                }
+
+                if (source.isFile()) {//文件复制
+                    FileUtils.nioTransferCopy(source,new File(target,source.getName()));
+                } else {//文件夹复制
+                    FileUtils.copyDirectory(source,new File(target,source.getName()));
                 }
                 return true;
             }
@@ -81,8 +97,17 @@ public class LocalFileModel implements IFileModel {
     }
 
     @Override
-    public Observable<Boolean> cut(IBaseFileBean from, IBaseFileBean to) {
-        return Observable.mergeArray(copy(from, to), delete(from));
+    public Observable<Boolean> cut(final IBaseFileBean from, IBaseFileBean to) {
+        return copy(from, to).flatMap(new Function<Boolean, ObservableSource<Boolean>>() {
+            @Override
+            public ObservableSource<Boolean> apply(@NonNull Boolean aBoolean) throws Exception {
+                if (aBoolean){
+                    return delete(from);
+                }else{
+                    return Observable.just(false);
+                }
+            }
+        });
     }
 
     @Override

@@ -83,7 +83,10 @@ public class FilePresenter implements IFilePresenter {
     @Override
     public void delete(IBaseFileBean bean) {
         mView.showProgress();
-        mFileModel.delete(bean).subscribe(new Consumer<Boolean>() {
+        mFileModel
+                .delete(bean)
+                .compose(RxHelper.<Boolean>io_main())
+                .subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(@NonNull Boolean aBoolean) throws Exception {
                 if (aBoolean){
@@ -113,7 +116,6 @@ public class FilePresenter implements IFilePresenter {
 
     @Override
     public void paste(IBaseFileBean bean) {
-        mView.showProgress();
         Observable<Boolean> ob;
         if (mCopyOrCut==null){
             mView.Toast("当前无项目粘贴");
@@ -125,9 +127,13 @@ public class FilePresenter implements IFilePresenter {
                ob = mFileModel.cut(mCopyOrCut,mCurrent);
             }
         }
-        ob.subscribe(new Consumer<Boolean>() {
+        mView.showProgress();
+        ob
+                .compose(RxHelper.<Boolean>io_main())
+                .subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(@NonNull Boolean aBoolean) throws Exception {
+                refresh();
                 if (aBoolean){
                     mView.Toast("操作成功");
                 }

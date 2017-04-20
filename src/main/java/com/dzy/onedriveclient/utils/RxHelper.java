@@ -139,6 +139,6 @@ public class RxHelper {
     }
 
     public interface IFun<T> {
-        T fun();
+        T fun() throws Exception;
     }
 }
