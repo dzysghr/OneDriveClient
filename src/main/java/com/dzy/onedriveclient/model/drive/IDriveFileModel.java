@@ -5,7 +5,9 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -22,7 +24,7 @@ public interface IDriveFileModel {
 
     @GET("drive/items/{id}/children")
     Observable<Response<ResponseBody>> getListById(
-            @Path(value = "id",encoded = true) String id,
+            @Path("id") String id,
             @Query("select") String select,
             @Query("top") int top);
 
@@ -38,11 +40,14 @@ public interface IDriveFileModel {
     Observable<Response<ResponseBody>> createFolderByPath(@Path("path") String path,@Body RequestBody body);
 
 
-    @POST("/drive/items/{id}/copy")
-    Observable<Response<ResponseBody>> copy(@Path("id") String id,@Body RequestBody body);
+    @POST("drive/items/{id}/copy")
+    Observable<Response<ResponseBody>> copy(@Path("id") String id, @Body RequestBody body, @Header("Prefer") String header);
 
 
-    @PATCH("/drive/items/{id}")
+    @PATCH("drive/items/{id}")
     Observable<Response<ResponseBody>> update(@Path("id") String id,@Body RequestBody body);
+
+    @DELETE("drive/items/{id}")
+    Observable<Response<ResponseBody>> delete(@Path("id") String id);
 
 }

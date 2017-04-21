@@ -7,8 +7,6 @@ import com.dzy.onedriveclient.model.ModelFactory;
 import com.dzy.onedriveclient.utils.RxHelper;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +23,7 @@ import retrofit2.Response;
 public class OneDriveFileModel implements IFileModel {
 
 
+    private static final String PREFER_ASYNC = "respond-async";
     private IOAuthModel mIOAuthModel;
     private IDriveFileModel mIDriveFileModel;
     private TokenBean mTokenBean;
@@ -56,14 +55,7 @@ public class OneDriveFileModel implements IFileModel {
         } else {
             DriveFile file = (DriveFile) bean;
             DriveItem item = (DriveItem) file.getReal();
-            String id =item.getId() ;
-            try {
-                id = URLEncoder.encode(item.getId(),"UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-
-            return mIDriveFileModel.getListById(id, mSelectField, 10)
+            return mIDriveFileModel.getListById(item.getId(), mSelectField, 10)
                     .compose(RxHelper.handleChildren())
                     .flatMap(new Function<List<DriveItem>, ObservableSource<List<IBaseFileBean>>>() {
                         @Override
@@ -89,7 +81,9 @@ public class OneDriveFileModel implements IFileModel {
 
     @Override
     public Observable<Boolean> delete(IBaseFileBean bean) {
-        return null;
+        DriveItem file = (DriveItem) bean.getReal();
+        return mIDriveFileModel.delete(file.getId())
+                .compose(RxHelper.handleEmptyRespone(204));
     }
 
     @Override
@@ -112,14 +106,38 @@ public class OneDriveFileModel implements IFileModel {
         }
 
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"),json);
-
-        return mIDriveFileModel.copy(file.getId(),requestBody)
+        return mIDriveFileModel.copy(file.getId(),requestBody,PREFER_ASYNC)
                 .compose(RxHelper.handleEmptyRespone(202));
     }
 
     @Override
-    public Observable<Boolean> cut(IBaseFileBean from, IBaseFileBean to) {
-        return null;
+    public Observable<Boolean> cut(final IBaseFileBean from, IBaseFileBean to) {
+        DriveFile file = (DriveFile) from;
+        String json;
+        if (to==null){
+            json = "{\n" +
+                    "  \"parentReference\": {\n" +
+                    "    \"path\": \"/drive/root\"\n" +
+                    "  }\n" +
+                    "}";
+        }else{
+            DriveFile fileTo = (DriveFile) to;
+            json = "{\n" +
+                    "  \"parentReference\": {\n" +
+                    "    \"id\": \""+fileTo.getId()+"\"\n" +
+                    "  }\n" +
+                    "}";
+        }
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"),json);
+        return mIDriveFileModel.update(file.getId(),requestBody)
+                .compose(RxHelper.handle(new TypeToken<DriveItem>(){}))
+                .map(new Function<DriveItem, Boolean>() {
+                    @Override
+                    public Boolean apply(@NonNull DriveItem driveItem) throws Exception {
+                        return driveItem!=null;
+                    }
+                });
     }
 
     @Override
@@ -134,6 +152,7 @@ public class OneDriveFileModel implements IFileModel {
             observable = mIDriveFileModel.createFolderByPath("root",requestBody);
         }else {
             DriveFile file = (DriveFile) parent;
+
             observable = mIDriveFileModel.createFolder(file.getId(),requestBody);
         }
         return observable.compose(RxHelper.handle(new TypeToken<DriveItem>(){},201))

@@ -21,15 +21,25 @@ public class FilePresenter implements IFilePresenter {
     protected IFileModel mFileModel;
     protected IBaseFileBean mCopyOrCut;
     protected boolean mIsCopy;
+    private List<IBaseFileBean> mList;
 
 
-    private Consumer<Throwable> mErrorConsumer  = new Consumer<Throwable>() {
+    private Consumer<Throwable> mHandleListError = new Consumer<Throwable>() {
         @Override
         public void accept(@NonNull Throwable throwable) throws Exception {
-            Log.e("FilePresenter", "mErrorConsumer: ", throwable);
+            Log.e("FilePresenter", "mHandleListError: ", throwable);
             mView.Toast(throwable.getMessage());
             mView.hideProgress();
             mView.showErrorView();
+        }
+    };
+
+    private Consumer<Throwable> mSimpleError  = new Consumer<Throwable>() {
+        @Override
+        public void accept(@NonNull Throwable throwable) throws Exception {
+            Log.e("FilePresenter", "mError: ", throwable);
+            mView.Toast(throwable.getMessage());
+            mView.hideProgress();
         }
     };
 
@@ -61,10 +71,11 @@ public class FilePresenter implements IFilePresenter {
                 .subscribe(new Consumer<List<IBaseFileBean>>() {
                     @Override
                     public void accept(@NonNull List<IBaseFileBean> list) throws Exception {
+                        mList = list;
                         mView.showFileList(list);
                         mView.hideProgress();
                     }
-                },mErrorConsumer);
+                }, mHandleListError);
     }
 
     @Override
@@ -81,11 +92,19 @@ public class FilePresenter implements IFilePresenter {
     }
 
     @Override
-    public void delete(IBaseFileBean bean) {
+    public void delete(final IBaseFileBean bean) {
         mView.showProgress();
         mFileModel
                 .delete(bean)
                 .compose(RxHelper.<Boolean>io_main())
+                .doOnNext(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(@NonNull Boolean aBoolean) throws Exception {
+                        if (aBoolean){
+                            refresh();
+                        }
+                    }
+                })
                 .subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(@NonNull Boolean aBoolean) throws Exception {
@@ -93,7 +112,7 @@ public class FilePresenter implements IFilePresenter {
                     mView.Toast("删除成功");
                 }
             }
-        },mErrorConsumer);
+        }, mSimpleError);
     }
 
     @Override
@@ -115,7 +134,7 @@ public class FilePresenter implements IFilePresenter {
     }
 
     @Override
-    public void paste(IBaseFileBean bean) {
+    public void paste(final IBaseFileBean bean) {
         Observable<Boolean> ob;
         if (mCopyOrCut==null){
             mView.Toast("当前无项目粘贴");
@@ -130,15 +149,22 @@ public class FilePresenter implements IFilePresenter {
         mView.showProgress();
         ob
                 .compose(RxHelper.<Boolean>io_main())
+                .doOnNext(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(@NonNull Boolean aBoolean) throws Exception {
+                        if (aBoolean){
+                            refresh();
+                        }
+                    }
+                })
                 .subscribe(new Consumer<Boolean>() {
             @Override
             public void accept(@NonNull Boolean aBoolean) throws Exception {
-                refresh();
                 if (aBoolean){
                     mView.Toast("操作成功");
                 }
             }
-        },mErrorConsumer);
+        }, mSimpleError);
     }
 
     @Override
@@ -155,7 +181,7 @@ public class FilePresenter implements IFilePresenter {
             public void accept(@NonNull IBaseFileBean bean) throws Exception {
                     mView.Toast("操作成功");
             }
-        },mErrorConsumer);
+        }, mSimpleError);
     }
 
     @Override
