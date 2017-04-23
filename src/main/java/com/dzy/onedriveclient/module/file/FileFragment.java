@@ -49,7 +49,7 @@ public class FileFragment extends BaseFragment implements IFileView{
                 return true;
             }
         });
-        mFilePresenter.open(mCurrent);
+        mFilePresenter.getChildren(mCurrent);
     }
 
 

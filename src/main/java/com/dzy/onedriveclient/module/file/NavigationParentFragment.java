@@ -18,7 +18,9 @@ import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.IBaseFileBean;
 import com.dzy.onedriveclient.model.drive.OneDriveFileModel;
 import com.dzy.onedriveclient.model.local.LocalFileModel;
+import com.dzy.onedriveclient.utils.OpenFileHelper;
 
+import java.io.File;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
@@ -143,7 +145,11 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
     }
 
     public void openItem(IBaseFileBean bean){
-
+        if (mType != TYPE_LOCAL){
+            return;
+        }
+        File file = (File) bean.getReal();
+        OpenFileHelper.openFile(file,getActivity());
     }
 
     private FileFragment getTop(){

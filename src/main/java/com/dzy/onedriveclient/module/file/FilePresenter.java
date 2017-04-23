@@ -64,6 +64,13 @@ public class FilePresenter implements IFilePresenter {
     }
 
     @Override
+    public void open(IBaseFileBean bean) {
+        if (bean.isFolder()){
+            return;
+        }
+    }
+
+    @Override
     public void refresh() {
         mView.showProgress();
         mFileModel.getChildren(mCurrent,IFileModel.CACHE_NO)
@@ -84,7 +91,7 @@ public class FilePresenter implements IFilePresenter {
     }
 
     @Override
-    public void open(IBaseFileBean bean) {
+    public void getChildren(IBaseFileBean bean) {
          if (bean==null||bean.isFolder()) {
             mCurrent = bean;
             refresh();
