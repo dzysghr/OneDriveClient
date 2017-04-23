@@ -34,7 +34,7 @@ public class FilePresenter implements IFilePresenter {
         }
     };
 
-    private Consumer<Throwable> mSimpleError  = new Consumer<Throwable>() {
+    private Consumer<Throwable> mSimpleError = new Consumer<Throwable>() {
         @Override
         public void accept(@NonNull Throwable throwable) throws Exception {
             Log.e("FilePresenter", "mError: ", throwable);
@@ -44,7 +44,7 @@ public class FilePresenter implements IFilePresenter {
     };
 
 
-    public FilePresenter(IFileModel model){
+    public FilePresenter(IFileModel model) {
         mFileModel = model;
     }
 
@@ -65,7 +65,7 @@ public class FilePresenter implements IFilePresenter {
 
     @Override
     public void open(IBaseFileBean bean) {
-        if (bean.isFolder()){
+        if (bean.isFolder()) {
             return;
         }
     }
@@ -73,7 +73,7 @@ public class FilePresenter implements IFilePresenter {
     @Override
     public void refresh() {
         mView.showProgress();
-        mFileModel.getChildren(mCurrent,IFileModel.CACHE_NO)
+        mFileModel.getChildren(mCurrent, IFileModel.CACHE_NO)
                 .compose(RxHelper.<List<IBaseFileBean>>io_main())
                 .subscribe(new Consumer<List<IBaseFileBean>>() {
                     @Override
@@ -92,7 +92,7 @@ public class FilePresenter implements IFilePresenter {
 
     @Override
     public void getChildren(IBaseFileBean bean) {
-         if (bean==null||bean.isFolder()) {
+        if (bean == null || bean.isFolder()) {
             mCurrent = bean;
             refresh();
         }
@@ -107,19 +107,19 @@ public class FilePresenter implements IFilePresenter {
                 .doOnNext(new Consumer<Boolean>() {
                     @Override
                     public void accept(@NonNull Boolean aBoolean) throws Exception {
-                        if (aBoolean){
+                        if (aBoolean) {
                             refresh();
                         }
                     }
                 })
                 .subscribe(new Consumer<Boolean>() {
-            @Override
-            public void accept(@NonNull Boolean aBoolean) throws Exception {
-                if (aBoolean){
-                    mView.Toast("删除成功");
-                }
-            }
-        }, mSimpleError);
+                    @Override
+                    public void accept(@NonNull Boolean aBoolean) throws Exception {
+                        if (aBoolean) {
+                            mView.Toast("删除成功");
+                        }
+                    }
+                }, mSimpleError);
     }
 
     @Override
@@ -143,14 +143,14 @@ public class FilePresenter implements IFilePresenter {
     @Override
     public void paste(final IBaseFileBean bean) {
         Observable<Boolean> ob;
-        if (mCopyOrCut==null){
+        if (mCopyOrCut == null) {
             mView.Toast("当前无项目粘贴");
             return;
-        }else{
-            if (mIsCopy){
-                ob = mFileModel.copy(mCopyOrCut,mCurrent);
-            }else{
-               ob = mFileModel.cut(mCopyOrCut,mCurrent);
+        } else {
+            if (mIsCopy) {
+                ob = mFileModel.copy(mCopyOrCut, mCurrent);
+            } else {
+                ob = mFileModel.cut(mCopyOrCut, mCurrent);
             }
         }
         mView.showProgress();
@@ -159,19 +159,19 @@ public class FilePresenter implements IFilePresenter {
                 .doOnNext(new Consumer<Boolean>() {
                     @Override
                     public void accept(@NonNull Boolean aBoolean) throws Exception {
-                        if (aBoolean){
+                        if (aBoolean) {
                             refresh();
                         }
                     }
                 })
                 .subscribe(new Consumer<Boolean>() {
-            @Override
-            public void accept(@NonNull Boolean aBoolean) throws Exception {
-                if (aBoolean){
-                    mView.Toast("操作成功");
-                }
-            }
-        }, mSimpleError);
+                    @Override
+                    public void accept(@NonNull Boolean aBoolean) throws Exception {
+                        if (aBoolean) {
+                            mView.Toast("操作成功");
+                        }
+                    }
+                }, mSimpleError);
     }
 
     @Override
@@ -181,14 +181,16 @@ public class FilePresenter implements IFilePresenter {
 
     @Override
     public void createFolder(String name) {
-        mFileModel.createFolder(mCurrent,name)
+        mFileModel.createFolder(mCurrent, name)
                 .compose(RxHelper.<IBaseFileBean>io_main())
                 .subscribe(new Consumer<IBaseFileBean>() {
-            @Override
-            public void accept(@NonNull IBaseFileBean bean) throws Exception {
-                    mView.Toast("操作成功");
-            }
-        }, mSimpleError);
+                    @Override
+                    public void accept(@NonNull IBaseFileBean bean) throws Exception {
+                        mView.Toast("操作成功");
+                        mList.add(bean);
+                        mView.showFileList(mList);
+                    }
+                }, mSimpleError);
     }
 
     @Override

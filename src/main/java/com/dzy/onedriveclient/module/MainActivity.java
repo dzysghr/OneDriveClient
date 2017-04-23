@@ -3,6 +3,7 @@ package com.dzy.onedriveclient.module;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.core.BaseActivity;
@@ -20,6 +21,7 @@ public class MainActivity extends BaseActivity {
     private BottomNavigationView mBottomNavigationView;
     private Map<Integer,BaseFragment> mFragments = new HashMap<>();
     private BaseFragment mCurrentFragment;
+    private Toast mToast;
 
     @Override
     protected void initView() {
@@ -28,6 +30,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void setupView() {
+        mToast = Toast.makeText(this,"再次点击返回退出",Toast.LENGTH_SHORT);
         mBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -35,7 +38,7 @@ public class MainActivity extends BaseActivity {
                 return true;
             }
         });
-        mFragments.put(R.id.menu_drive,NavigationParentFragment.newInstance(NavigationParentFragment.TYPE_LOCAL));
+        mFragments.put(R.id.menu_drive,NavigationParentFragment.newInstance(NavigationParentFragment.TYPE_ONEDRIVE));
         mFragments.put(R.id.menu_local,NavigationParentFragment.newInstance(NavigationParentFragment.TYPE_LOCAL));
         mFragments.put(R.id.menu_more, new MoreFragment());
         mFragments.put(R.id.menu_transfer,new TransferFragment());
@@ -83,7 +86,11 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         if (!mCurrentFragment.onBackPressed()){
-            finish();
+            if (mToast.getView().getParent()==null){
+                mToast.show();
+            }else{
+                finish();
+            }
         }
     }
 }

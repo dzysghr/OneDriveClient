@@ -177,7 +177,6 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
                                 break;
                             case 1:
                                 mPresenter.delete(bean);
-                                mPresenter.refresh();
                                 break;
                             case 2:
                                 mPresenter.cut(bean);
@@ -207,7 +206,6 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
                 @Override
                 public void onOK(String name) {
                     mPresenter.createFolder(name);
-                    mPresenter.refresh();
                 }
             });
             dialog.show();
