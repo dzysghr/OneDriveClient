@@ -14,12 +14,54 @@
        android:layout_weight="1"
        android:layout_width="match_parent"
        android:layout_height="0dp"/>
-    <android.support.design.widget.BottomNavigationView
-        android:id="@+id/bottom_navigationView"
-        app:menu="@menu/bottom_menu"
-        app:itemBackground="?attr/colorPrimary"
-        app:itemIconTint="@android:color/white"
-        app:itemTextColor="@android:color/white"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content">
+        <android.support.design.widget.BottomNavigationView
+            tools:visibility="gone"
+            android:id="@+id/bottom_navigationView"
+            app:menu="@menu/bottom_menu"
+            app:itemBackground="?attr/colorPrimary"
+            app:itemIconTint="@android:color/white"
+            app:itemTextColor="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            tools:visibility="visible"
+            android:visibility="gone"
+            android:id="@+id/bottom_select_menu"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="56dp">
+
+            <TextView
+                android:layout_marginEnd="1px"
+                android:layout_marginRight="1px"
+                android:id="@+id/tv_ok"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/bottom_button"
+                android:clickable="true"
+                android:gravity="center"
+                android:text="@string/ok"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/tv_cancel"
+                android:layout_marginLeft="1px"
+                android:layout_marginStart="1px"
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:background="@drawable/bottom_button"
+                android:clickable="true"
+                android:gravity="center"
+                android:text="@string/cancel"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
+    </FrameLayout>
 </LinearLayout>

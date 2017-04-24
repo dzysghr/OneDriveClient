@@ -1,5 +1,6 @@
 package com.dzy.onedriveclient.core;
 
+import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
@@ -80,9 +81,14 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     }
 
-    public void  startActivity(Class<?> activity){
+    public void  startActivity(Class<? extends AppCompatActivity> activity){
         Intent i = new Intent(this,activity);
         startActivity(i);
+    }
+
+    public void startService(Class<? extends Service> service){
+        Intent i = new Intent(this,service);
+        startService(i);
     }
 
     public void Toast(String msg){

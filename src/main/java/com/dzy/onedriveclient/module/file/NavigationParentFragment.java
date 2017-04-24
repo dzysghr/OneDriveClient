@@ -18,6 +18,7 @@ import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.IBaseFileBean;
 import com.dzy.onedriveclient.model.drive.OneDriveFileModel;
 import com.dzy.onedriveclient.model.local.LocalFileModel;
+import com.dzy.onedriveclient.module.MainActivity;
 import com.dzy.onedriveclient.utils.OpenFileHelper;
 
 import java.io.File;
@@ -41,7 +42,6 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
     private IFilePresenter mPresenter;
     private String[] mLocalOptionItem;
     private String[] mDriveOptionItem;
-    private int mLevel = 0;
 
     public static NavigationParentFragment newInstance(int type){
         Bundle b = new Bundle();
@@ -119,7 +119,6 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
         if (mCurrent!=null){
             transaction.hide(mCurrent);
         }
-        mLevel++;
         transaction.add(R.id.container,fileFragment)
                 .addToBackStack(null)
                 .commit();
@@ -164,6 +163,10 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
         return null;
     }
 
+    private MainActivity getMainActivity(){
+        return (MainActivity) getActivity();
+    }
+
 
     public void showOptionMenu(final IBaseFileBean bean){
         String[] items = mType==TYPE_LOCAL?mLocalOptionItem:mDriveOptionItem;
@@ -183,9 +186,10 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
                                 break;
                             case 3:
                                 if (mType==TYPE_LOCAL){
-                                    mPresenter.upload(bean);
+                                    getMainActivity().selectPath(MainActivity.SELECT_UPLOAD);
+
                                 }else{
-                                    mPresenter.download(bean);
+                                    getMainActivity().selectPath(MainActivity.SELECT_DOWN);
                                 }
                                 break;
                          default:
@@ -193,6 +197,14 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
                         }
                     }
                 }).show();
+    }
+
+    public void onPathSelected(IBaseFileBean to){
+        if (mType==TYPE_LOCAL){
+            mPresenter.upload(getCurrentBean(),to);
+        }else if (mType==TYPE_ONEDRIVE){
+            mPresenter.download(getCurrentBean(),to);
+        }
     }
 
 
@@ -213,5 +225,9 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
             mPresenter.refresh();
         }
         return true;
+    }
+
+    public IBaseFileBean getCurrentBean(){
+        return mStacks.peekLast();
     }
 }

@@ -175,11 +175,6 @@ public class FilePresenter implements IFilePresenter {
     }
 
     @Override
-    public void upload(IBaseFileBean bean) {
-
-    }
-
-    @Override
     public void createFolder(String name) {
         mFileModel.createFolder(mCurrent, name)
                 .compose(RxHelper.<IBaseFileBean>io_main())
@@ -199,9 +194,12 @@ public class FilePresenter implements IFilePresenter {
     }
 
     @Override
-    public void download(IBaseFileBean bean) {
-
+    public void download(IBaseFileBean from, IBaseFileBean to) {
+        Log.e("tag", "download: ");
     }
 
+    @Override
+    public void upload(IBaseFileBean from, IBaseFileBean to) {
 
+    }
 }
