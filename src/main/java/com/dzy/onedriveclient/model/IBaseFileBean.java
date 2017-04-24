@@ -7,6 +7,6 @@ public interface IBaseFileBean {
     String getType();
     boolean isFolder();
     String getModifyDateTime();
-    int getSize();
+    long getSize();
     Object getReal();
 }

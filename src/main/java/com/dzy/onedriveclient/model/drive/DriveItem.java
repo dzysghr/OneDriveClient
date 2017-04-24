@@ -8,7 +8,7 @@ public class DriveItem {
 
     private String id;
     private String name;
-    private int size;
+    private long size;
     private String createdDateTime;
     private String lastModifiedDateTime;
     private FileFacet file;
@@ -41,11 +41,11 @@ public class DriveItem {
         this.name = name;
     }
 
-    public int getSize() {
+    public long getSize() {
         return size;
     }
 
-    public void setSize(int size) {
+    public void setSize(long size) {
         this.size = size;
     }
 

@@ -56,8 +56,8 @@ public class LocalFileBean implements IBaseFileBean{
     }
 
     @Override
-    public int getSize() {
-        return (int) (mFile.length()/1024);
+    public long getSize() {
+        return  mFile.length()/1024L;
     }
 
     @Override

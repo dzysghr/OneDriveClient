@@ -26,10 +26,6 @@ public class DownLoadTask {
     public static ExecutorService sExecutor = Executors.newCachedThreadPool();
 
 
-
-
-
-
     private static class DownLoadThread implements Runnable{
         @Override
         public void run() {

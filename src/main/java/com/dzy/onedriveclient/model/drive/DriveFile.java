@@ -47,7 +47,7 @@ public class DriveFile implements IBaseFileBean {
     }
 
     @Override
-    public int getSize() {
+    public long getSize() {
         return mItem.getSize();
     }
 
