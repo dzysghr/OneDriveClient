@@ -40,6 +40,15 @@ public class RxHelper {
         };
     }
 
+    public static <T> ObservableTransformer<T, T> computation_main() {
+        return new ObservableTransformer<T, T>() {
+            @Override
+            public ObservableSource<T> apply(@NonNull Observable<T> upstream) {
+                return upstream.subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread());
+            }
+        };
+    }
+
     public static ObservableTransformer<Response<ResponseBody>,Boolean> handleEmptyRespone(final int responeCode) {
         return new ObservableTransformer<Response<ResponseBody>,Boolean>() {
             @Override

@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.model.download;
+package com.dzy.onedriveclient.download;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
@@ -13,13 +13,14 @@ public class ThreadInfo {
 
     @Id
     private Long id;
-    private int fileId;
-    private int start;
-    private int end;
-    private int finished;
+    private String fileId;
+    private long start;
+    private long end;
+    private long finished;
     private Long taskId;
-    @Generated(hash = 818161760)
-    public ThreadInfo(Long id, int fileId, int start, int end, int finished,
+
+    @Generated(hash = 1030315365)
+    public ThreadInfo(Long id, String fileId, long start, long end, long finished,
             Long taskId) {
         this.id = id;
         this.fileId = fileId;
@@ -31,33 +32,14 @@ public class ThreadInfo {
     @Generated(hash = 930225280)
     public ThreadInfo() {
     }
+
     public Long getId() {
         return this.id;
     }
     public void setId(Long id) {
         this.id = id;
     }
-    public int getFileId() {
-        return this.fileId;
-    }
-    public void setFileId(int fileId) {
-        this.fileId = fileId;
-    }
-    public int getStart() {
-        return this.start;
-    }
-    public void setStart(int start) {
-        this.start = start;
-    }
-    public int getEnd() {
-        return this.end;
-    }
-    public void setEnd(int end) {
-        this.end = end;
-    }
-    public int getFinished() {
-        return this.finished;
-    }
+
     public void setFinished(int finished) {
         this.finished = finished;
     }
@@ -66,5 +48,29 @@ public class ThreadInfo {
     }
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
+    }
+    public String getFileId() {
+        return this.fileId;
+    }
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
+    }
+    public long getStart() {
+        return this.start;
+    }
+    public void setStart(long start) {
+        this.start = start;
+    }
+    public long getEnd() {
+        return this.end;
+    }
+    public void setEnd(long end) {
+        this.end = end;
+    }
+    public long getFinished() {
+        return this.finished;
+    }
+    public void setFinished(long finished) {
+        this.finished = finished;
     }
 }

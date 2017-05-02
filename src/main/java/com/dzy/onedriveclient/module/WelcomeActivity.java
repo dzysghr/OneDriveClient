@@ -52,6 +52,7 @@ public class WelcomeActivity extends BaseActivity {
     }
 
     protected void checkLogin(){
+
         final TokenModel model = ModelFactory.getTokenModel();
         TokenBean bean = model.getTokenFromDb();
         if (bean!=null){

@@ -2,9 +2,11 @@ package com.dzy.onedriveclient.module.file;
 
 import android.util.Log;
 
+import com.dzy.commemlib.rxbus.RxBus;
 import com.dzy.onedriveclient.core.mvp.IBaseVIew;
 import com.dzy.onedriveclient.model.IBaseFileBean;
 import com.dzy.onedriveclient.model.IFileModel;
+import com.dzy.onedriveclient.event.DownloadEvent;
 import com.dzy.onedriveclient.utils.RxHelper;
 
 import java.util.List;
@@ -195,7 +197,7 @@ public class FilePresenter implements IFilePresenter {
 
     @Override
     public void download(IBaseFileBean from, IBaseFileBean to) {
-        Log.e("tag", "download: ");
+        RxBus.getDefault().post(new DownloadEvent(from,to));
     }
 
     @Override

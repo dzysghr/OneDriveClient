@@ -11,6 +11,8 @@ import com.dzy.onedriveclient.core.mvp.IBasePresenter;
  */
 
 public class TransferFragment extends BaseFragment {
+
+
     @Override
     protected void initView() {
 

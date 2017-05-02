@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.model.download;
+package com.dzy.onedriveclient.download;
 
 import com.dzy.onedriveclient.model.gen.DaoSession;
 import com.dzy.onedriveclient.model.gen.TaskInfoDao;
@@ -19,15 +19,14 @@ import java.util.List;
 @Entity
 public class TaskInfo {
 
-    public static final int STATE_RUNNING = 0;
-    public static final int STATE_PAUSE = 1;
-    public static final int STATE_ERROR = 3;
-
     @Id
     private Long id;
-    private int fileId;
+    private String fileId;
     private long length;
     private String filePath;
+    private String tag;
+    private String url;
+    private long finish;
 
     @ToMany(referencedJoinProperty = "taskId")
     private List<ThreadInfo> threads;
@@ -38,17 +37,23 @@ public class TaskInfo {
     @Generated(hash = 1276444919)
     private transient TaskInfoDao myDao;
 
-    @Generated(hash = 16028162)
-    public TaskInfo(Long id, int fileId, long length, String filePath) {
+
+    @Generated(hash = 514561753)
+    public TaskInfo(Long id, String fileId, long length, String filePath, String tag, String url,
+            long finish) {
         this.id = id;
         this.fileId = fileId;
         this.length = length;
         this.filePath = filePath;
+        this.tag = tag;
+        this.url = url;
+        this.finish = finish;
     }
 
     @Generated(hash = 2022720704)
     public TaskInfo() {
     }
+
 
     public Long getId() {
         return this.id;
@@ -58,13 +63,6 @@ public class TaskInfo {
         this.id = id;
     }
 
-    public int getFileId() {
-        return this.fileId;
-    }
-
-    public void setFileId(int fileId) {
-        this.fileId = fileId;
-    }
 
     public long getLength() {
         return this.length;
@@ -151,6 +149,38 @@ public class TaskInfo {
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getTaskInfoDao() : null;
+    }
+
+    public String getTag() {
+        return this.tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public String getUrl() {
+        return this.url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public long getFinish() {
+        return this.finish;
+    }
+
+    public void setFinish(long finish) {
+        this.finish = finish;
+    }
+
+    public String getFileId() {
+        return this.fileId;
+    }
+
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
     }
     
 
