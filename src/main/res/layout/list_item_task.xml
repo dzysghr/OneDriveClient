@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="horizontal"
+              android:clickable="true"
+              android:background="@drawable/file_list_item_selectable"
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
 
     <ImageView
+        android:id="@+id/iv_file_icon"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_gravity="center"
@@ -19,24 +22,28 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content">
         <TextView
+            android:id="@+id/tv_fileName"
             android:textSize="18sp"
-            android:text="这是下载的文件名"
+            android:text="文件名"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <TextView
+            android:id="@+id/tv_task_progress"
             android:layout_marginTop="5dp"
             android:textSize="14sp"
-            android:text="0.4M/34M"
+            android:text="0.4M/34M   100kb/s"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
     </LinearLayout>
 
-    <ImageView
+    <TextView
+        android:id="@+id/tv_state"
+        android:text="已完成"
+        android:gravity="center"
         android:layout_marginRight="16dp"
         android:layout_marginEnd="16dp"
         android:layout_gravity="center"
-        android:src="@mipmap/finish"
-        android:layout_width="20dp"
+        android:layout_width="wrap_content"
         android:layout_height="30dp"/>
 </LinearLayout>

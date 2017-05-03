@@ -4,9 +4,9 @@ import android.util.Log;
 
 import com.dzy.commemlib.rxbus.RxBus;
 import com.dzy.onedriveclient.core.mvp.IBaseVIew;
+import com.dzy.onedriveclient.event.DownloadEvent;
 import com.dzy.onedriveclient.model.IBaseFileBean;
 import com.dzy.onedriveclient.model.IFileModel;
-import com.dzy.onedriveclient.event.DownloadEvent;
 import com.dzy.onedriveclient.utils.RxHelper;
 
 import java.util.List;

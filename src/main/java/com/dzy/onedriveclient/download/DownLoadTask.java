@@ -29,8 +29,6 @@ import static com.dzy.onedriveclient.download.TaskState.*;
 
 public class DownLoadTask {
 
-
-
     private static final String TAG = "DownLoadTask";
     private DownloadContext mContext;
     private int mThreadCount = 1;
@@ -40,9 +38,9 @@ public class DownLoadTask {
     private TaskDispatcher mDispatcher;
     private TaskHandle mTaskHandle;
 
-    public DownLoadTask(DownloadContext context,TaskHandle handle,TaskDispatcher dispatcher) {
-        DLHelper.checkNull(context,"context");
-        DLHelper.checkNull(handle,"handle");
+    public DownLoadTask(DownloadContext context, TaskHandle handle, TaskDispatcher dispatcher) {
+        DLHelper.checkNull(context, "context");
+        DLHelper.checkNull(handle, "handle");
         mContext = context;
         mTaskHandle = handle;
         mTaskInfo = handle.getTaskInfo();
@@ -50,7 +48,7 @@ public class DownLoadTask {
     }
 
     public void execute() {
-        if (mState==STATE_PAUSE){
+        if (mState == STATE_PAUSE) {
             resume();
             return;
         }
@@ -69,7 +67,7 @@ public class DownLoadTask {
 
                         if (mTaskInfo.getId() == null) {
                             mContext.getTaskDao().save(mTaskInfo);
-                            mDispatcher.submit(TaskDispatcher.MSG_INIT,mTaskHandle);
+                            mDispatcher.submit(TaskDispatcher.MSG_INIT, mTaskHandle);
                         }
 
                         if (checkFinish(mTaskInfo)) {
@@ -110,11 +108,15 @@ public class DownLoadTask {
     }
 
     private void setState(int state) {
-        if (mState==state){
+        if (mState == state) {
             return;
         }
+        if (state == TaskState.STATE_FINISH || state == TaskState.STATE_PAUSE) {
+            mContext.getTaskDao().update(mTaskInfo);
+        }
+        mState = state;
         mTaskHandle.setState(state);
-        mDispatcher.submit(TaskDispatcher.MSG_STATE_CHANGED,mTaskHandle);
+        mDispatcher.submit(TaskDispatcher.MSG_STATE_CHANGED, mTaskHandle);
     }
 
     public void stop() {
@@ -127,6 +129,14 @@ public class DownLoadTask {
 
     private void resume() {
         if (mState == STATE_PAUSE) {
+            long finish = 0;
+            if (mTaskInfo.getThreads().isEmpty()) {
+                mTaskInfo.resetThreads();
+            }
+            for (ThreadInfo i : mTaskInfo.getThreads()) {
+                finish = i.getFinished();
+            }
+            mTaskInfo.setFinish(finish);
             runAllThread();
         } else {
             Log.e(TAG, "can not resume !! downloadtask is not pausing,current state:" + mState);
@@ -135,14 +145,16 @@ public class DownLoadTask {
 
     private long mLastTime = 0;
     private long mLastFinish = 0;
+
     private synchronized void updateFinish(long i) {
         mTaskInfo.setFinish(mTaskInfo.getFinish() + i);
         long now = System.currentTimeMillis();
-        long diff = now-mLastTime;
-        mLastFinish +=i;
-        if (diff>1000){
-            mTaskHandle.setSpeed(Math.round(mLastFinish/diff*1000f));
-            mDispatcher.submit(TaskDispatcher.MSG_UPDATE,mTaskHandle);
+        long diff = now - mLastTime;
+        mLastFinish += i;
+        if (diff > 1000) {
+            mContext.getTaskDao().update(mTaskInfo);
+            mTaskHandle.setSpeed(Math.round(mLastFinish / diff * 1000f));
+            mDispatcher.submit(TaskDispatcher.MSG_UPDATE, mTaskHandle);
             mLastTime = now;
             mLastFinish = 0;
         }
@@ -167,10 +179,10 @@ public class DownLoadTask {
         }
     }
 
-    public boolean isRunning(){
-        boolean run=false;
-        for (DownLoadThread i:mThreadList){
-            if(i.mIsRunning){
+    public boolean isRunning() {
+        boolean run = false;
+        for (DownLoadThread i : mThreadList) {
+            if (i.mIsRunning) {
                 run = true;
                 break;
             }
@@ -202,10 +214,11 @@ public class DownLoadTask {
             if (i == mThreadCount - 1) {
                 threadinfo.setEnd(fileLength);
             }
-            mThreadList.add(new DownLoadThread(threadinfo));
             //向数据库插入线程信息
             mContext.getThreadDao().save(threadinfo);
         }
+        mTaskInfo.resetThreads();
+        initTaskThreads();
     }
 
     private void runAllThread() {
@@ -215,7 +228,7 @@ public class DownLoadTask {
                 mContext.getExecutor().execute(item);
             }
         } else {
-            Log.e("DownLoadTask", "runAllThread: state error ,state " + STATE_READY);
+            Log.e("DownLoadTask", "runAllThread: state error ,state " + mState);
         }
     }
 
@@ -250,15 +263,13 @@ public class DownLoadTask {
             }
         }
 
-        if (finished&&mTaskInfo.getFinish() != mTaskInfo.getLength()) {
+        if (finished && mTaskInfo.getFinish() != mTaskInfo.getLength()) {
             Log.e(TAG, "任务下载错误,length " + mTaskInfo.getLength() + ",finish " + mTaskInfo.getFinish());
             throw new IllegalStateException("任务完成进度与线程进度不一致");
         }
         if (finished) {
             setState(STATE_FINISH);
             Log.d(TAG, "checkAllThreadFinished: file finish " + mTaskInfo.getFilePath());
-        }else{
-            mContext.getTaskDao().update(mTaskInfo);
         }
     }
 
@@ -290,9 +301,11 @@ public class DownLoadTask {
         @Override
         public void run() {
             mIsRunning = true;
+
+            long start = mThreadInfo.getStart() + mThreadInfo.getFinished();
             Request request = new Request.Builder()
                     .url(mTaskInfo.getUrl())
-                    .addHeader("Range", "bytes=" + mThreadInfo.getStart() + "-" + mThreadInfo.getEnd()).build();
+                    .addHeader("Range", "bytes=" + start + "-" + mThreadInfo.getEnd()).build();
             RandomAccessFile raf = null;
             InputStream is = null;
             try {
@@ -301,17 +314,17 @@ public class DownLoadTask {
                     setState(STATE_ERROR);
                     return;
                 }
-                long start = mThreadInfo.getStart() + mThreadInfo.getFinished();
+
                 //设置文件写入位置
                 File file = new File(mTaskInfo.getFilePath());
                 raf = new RandomAccessFile(file, "rwd");
                 raf.seek(start);
-
                 //读取数据
                 is = response.body().byteStream();
                 byte[] buf = new byte[1024 * 4];
                 int len = -1;
-                while ((len = is.read(buf)) != -1&&mIsRunning) {
+                long time = System.currentTimeMillis();
+                while ((len = is.read(buf)) != -1 && mIsRunning) {
                     //写入文件
                     raf.write(buf, 0, len);
                     //累加整个文件完成进度
@@ -319,16 +332,21 @@ public class DownLoadTask {
                     //累加线程完成进度
                     mThreadInfo.setFinished(mThreadInfo.getFinished() + len);
 
+
+                    if (System.currentTimeMillis() - time > 1000) {
+                        time = System.currentTimeMillis();
+                        mContext.getThreadDao().update(mThreadInfo);
+                    }
+
                     //下载暂停时,保存下载进度
                     if (mState == STATE_PAUSE) {
-                        mContext.getThreadDao().update(mThreadInfo);
-                        Log.i("download", "stop downloading ,save the thread info");
                         break;
                     }
                     if (mState == STATE_ERROR) {
                         break;
                     }
                 }
+                mContext.getThreadDao().update(mThreadInfo);
                 if (mThreadInfo.getFinished() == mThreadInfo.getEnd() - mThreadInfo.getStart()) {
                     mIsFinished = true;
                 }

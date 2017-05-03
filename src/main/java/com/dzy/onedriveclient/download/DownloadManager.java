@@ -7,10 +7,9 @@ import android.os.Message;
 import com.dzy.onedriveclient.model.gen.TaskInfoDao;
 import com.dzy.onedriveclient.utils.RxHelper;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
@@ -24,77 +23,104 @@ public class DownloadManager {
 
     private TaskDispatcher mTaskDispatcher;
     private DownloadContext mDownloadContext;
-    private Map<Long,TaskHandle> mTaskMap;
-    private List<TaskHandle> mTaskList;
+    private List<TaskHandle> mTaskList = new ArrayList<>();
 
     private int mMaxTask;
     private List<TaskListener> mTaskListenerList;
-
+    private NotifyHandler mNotifyHandler;
 
 
     public DownloadManager(DownloadContext downloadContext) {
-        DLHelper.checkNull(downloadContext,"downloadContext");
+        DLHelper.checkNull(downloadContext, "downloadContext");
         mDownloadContext = downloadContext;
         mTaskListenerList = new ArrayList<>();
-        mTaskDispatcher = new TaskDispatcher(mDownloadContext,new NotifyHandler(Looper.getMainLooper()));
+        mTaskDispatcher = new TaskDispatcher(mDownloadContext, mNotifyHandler = new NotifyHandler(Looper.getMainLooper()));
     }
 
-    public Observable<TaskHandle> createTask(final String url,final String localPath){
+    public void init() {
+        //mDownloadContext.getTaskDao().deleteAll();
+        Observable.just(mDownloadContext.getTaskDao().loadAll())
+                .map(new Function<List<TaskInfo>, List<TaskHandle>>() {
+                    @Override
+                    public List<TaskHandle> apply(@NonNull List<TaskInfo> taskInfos) throws Exception {
+                        for (TaskInfo i : taskInfos) {
+                            TaskHandle handle = new TaskHandle(i, DownloadManager.this);
+                            if (i.getLength() != 0 && i.getLength() == i.getFinish()) {
+                                handle.setState(TaskState.STATE_FINISH);
+                            }else{
+                                handle.setState(TaskState.STATE_PAUSE);
+                            }
+                            mTaskList.add(handle);
+                        }
+                        return mTaskList;
+                    }
+                }).blockingFirst();
+    }
+
+    public Observable<TaskHandle> createTask(final String url, final String localPath) {
         return Observable.just(1)
+                .compose(RxHelper.<Integer>checkNetwork())
                 .compose(RxHelper.<Integer>computation_main())
                 .map(new Function<Integer, TaskHandle>() {
-            @Override
-            public TaskHandle apply(@NonNull Integer integer) throws Exception {
-                List<TaskInfo> taskInfoList= mDownloadContext
-                        .getTaskDao()
-                        .queryBuilder()
-                        .whereOr(TaskInfoDao.Properties.Url.eq(url),TaskInfoDao.Properties.FilePath.eq(localPath))
-                        .build()
-                        .list();
-                if (!taskInfoList.isEmpty()){
-                    throw new IllegalArgumentException("url or path conflict");
-                }else{
-                    TaskInfo taskInfo = new TaskInfo(null,null,0,localPath,null,url,0);
-                    TaskHandle handle = new TaskHandle(taskInfo,mTaskDispatcher);
-                    mTaskDispatcher.submit(TaskDispatcher.MSG_CREATE,handle);
-                    return handle;
-                }
-            }
-        });
+                    @Override
+                    public TaskHandle apply(@NonNull Integer integer) throws Exception {
+                        List<TaskInfo> taskInfoList = mDownloadContext
+                                .getTaskDao()
+                                .queryBuilder()
+                                .where(TaskInfoDao.Properties.Url.eq(url), TaskInfoDao.Properties.FilePath.eq(localPath))
+                                .build()
+                                .list();
+                        if (!taskInfoList.isEmpty()) {
+                            throw new IllegalArgumentException("url or path conflict");
+                        } else {
+                            TaskInfo taskInfo = new TaskInfo(null, null, 0, localPath, null, url, 0);
+                            TaskHandle handle = new TaskHandle(taskInfo, DownloadManager.this);
+                            mTaskDispatcher.submit(TaskDispatcher.MSG_CREATE, handle);
+                            mTaskList.add(handle);
+                            notifyListChanged();
+                            return handle;
+                        }
+                    }
+                });
     }
 
-    public Observable<List<TaskHandle>> getAllTask(){
-        if (mTaskMap == null){
-            mTaskMap = new ConcurrentHashMap<>();
-            mTaskList = new ArrayList<>();
-            return Observable.just(mDownloadContext.getTaskDao().loadAll())
-                    .compose(RxHelper.<List<TaskInfo>>computation_main())
-                    .map(new Function<List<TaskInfo>, List<TaskHandle>>() {
-                        @Override
-                        public List<TaskHandle> apply(@NonNull List<TaskInfo> taskInfos) throws Exception {
-                            for (TaskInfo i:taskInfos){
-                                TaskHandle  handle = new TaskHandle(i,mTaskDispatcher);
-                                mTaskMap.put(i.getId(),handle);
-                                mTaskList.add(handle);
-                            }
-                            return mTaskList;
-                        }
-                    });
-        }else{
-            return Observable.just(mTaskList);
+    private void notifyListChanged(){
+        for (TaskListener i:mTaskListenerList){
+            i.onTaskListChanged(mTaskList);
         }
     }
 
+    public List<TaskHandle> getAllTask() {
+        return mTaskList;
+    }
 
-    public void addTaskListener(TaskListener listener){
+
+    void start(TaskHandle handle){
+        mTaskDispatcher.submit(TaskDispatcher.MSG_START,handle);
+    }
+
+    void stop(TaskHandle handle){
+        mTaskDispatcher.submit(TaskDispatcher.MSG_STOP,handle);
+    }
+
+    void delete(TaskHandle handle,boolean deleteFile){
+        if (deleteFile&&handle.getState()==TaskState.STATE_FINISH){
+            new File(handle.getPath()).delete();
+        }
+        mTaskDispatcher.submit(TaskDispatcher.MSG_DELETE,handle);
+        mTaskList.remove(handle);
+        notifyListChanged();
+    }
+
+    public void addTaskListener(TaskListener listener) {
         mTaskListenerList.add(listener);
     }
 
-    public void removeTaskListener(TaskListener listener){
+    public void removeTaskListener(TaskListener listener) {
         mTaskListenerList.remove(listener);
     }
 
-    private class NotifyHandler extends Handler implements TaskListener{
+    private class NotifyHandler extends Handler implements BaseListener {
 
         private static final int INIT = 0;
         private static final int UPDATE = 1;
@@ -105,7 +131,7 @@ public class DownloadManager {
 
         }
 
-        private void sendMsg(int type,Object o){
+        private void sendMsg(int type, Object o) {
             Message msg = obtainMessage(type);
             msg.obj = o;
             sendMessage(msg);
@@ -113,40 +139,43 @@ public class DownloadManager {
 
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 case INIT:
-                    for (TaskListener i: mTaskListenerList){
+                    for (BaseListener i : mTaskListenerList) {
                         i.onTaskInit((TaskHandle) msg.obj);
                     }
                     break;
                 case UPDATE:
-                    for (TaskListener i: mTaskListenerList){
+                    for (BaseListener i : mTaskListenerList) {
                         i.onUpdate((TaskHandle) msg.obj);
                     }
                     break;
                 case STATE:
-                    for (TaskListener i: mTaskListenerList){
+                    for (BaseListener i : mTaskListenerList) {
                         i.onStateChange((TaskHandle) msg.obj);
                     }
+                default:
                     break;
-                default:break;
             }
         }
 
         @Override
         public void onTaskInit(TaskHandle handle) {
-            sendMsg(INIT,handle);
+            sendMsg(INIT, handle);
+            if (!mTaskList.contains(handle)) {
+                mTaskList.add(handle);
+            }
         }
 
         @Override
         public void onUpdate(TaskHandle handle) {
-            sendMsg(UPDATE,handle);
+            sendMsg(UPDATE, handle);
 
         }
 
         @Override
         public void onStateChange(TaskHandle handle) {
-            sendMsg(STATE,handle);
+            sendMsg(STATE, handle);
         }
     }
 

@@ -17,8 +17,8 @@ public class DBModel {
     public DBModel(Context context){
         mContext = context;
         DaoMaster.DevOpenHelper helper =new DaoMaster.DevOpenHelper(context,"bean");
-        SQLiteDatabase db =helper.getWritableDatabase();
-        mDaoMaster = new DaoMaster(db);
+        mDb =helper.getWritableDatabase();
+        mDaoMaster = new DaoMaster(mDb);
         mDaoSession = mDaoMaster.newSession();
     }
 

@@ -11,22 +11,22 @@ public class TaskHandle {
 
 
     private TaskInfo mTaskInfo;
-    private TaskDispatcher mTaskDispatchers;
+    private DownloadManager mDownloadManager;
     private File mFile;
-    private int mState;
+    private int mState = TaskState.STATE_INIT;
     private long mFinish;
     private long mLength;
     private int mSpeed;
 
 
-    TaskHandle(TaskInfo taskInfo, TaskDispatcher taskDispatcher) {
+    TaskHandle(TaskInfo taskInfo, DownloadManager downloadManager) {
         mTaskInfo = taskInfo;
-        mTaskDispatchers = taskDispatcher;
+        mDownloadManager = downloadManager;
         mFile = new File(mTaskInfo.getFilePath());
     }
 
-    TaskDispatcher getTaskDispatcher(){
-        return mTaskDispatchers;
+    DownloadManager getManager(){
+        return mDownloadManager;
     }
 
     TaskInfo getTaskInfo() {
@@ -34,18 +34,22 @@ public class TaskHandle {
     }
 
     public void stop(){
-        mTaskDispatchers.submit(TaskDispatcher.MSG_STOP,this);
+        mDownloadManager.stop(this);
     }
 
     public void start(){
-        mTaskDispatchers.submit(TaskDispatcher.MSG_START,this);
+        mDownloadManager.start(this);
     }
 
-    public void delete(){
-        mTaskDispatchers.submit(TaskDispatcher.MSG_DELETE,this);
+    public void delete(boolean withFile){
+        mDownloadManager.delete(this,withFile);
     }
 
-    public String Path(){
+    public String getPath(){
+        return mFile.getPath();
+    }
+
+    public String getParentPath(){
         return mFile.getParent();
     }
 

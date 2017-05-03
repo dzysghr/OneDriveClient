@@ -1,11 +1,11 @@
 package com.dzy.onedriveclient.download;
 
+import java.util.List;
+
 /**
- * Created by dzysg on 2017/4/29 0029.
+ * Created by dzysg on 2017/5/2 0002.
  */
 
-public interface TaskListener {
-    void onTaskInit(TaskHandle handle);
-    void onUpdate(TaskHandle handle);
-    void onStateChange(TaskHandle handle);
+public interface TaskListener extends BaseListener{
+    void onTaskListChanged(List<TaskHandle> list);
 }

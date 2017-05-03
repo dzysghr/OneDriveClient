@@ -42,6 +42,12 @@
             android:enabled="true"
             android:exported="true">
         </service>
+
+        <activity
+            android:name=".module.transfer.Main2Activity"
+            android:label="@string/title_activity_main2"
+            android:theme="@style/AppTheme">
+        </activity>
     </application>
 
 </manifest>

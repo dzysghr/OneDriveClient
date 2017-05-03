@@ -42,6 +42,7 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
     private IFilePresenter mPresenter;
     private String[] mLocalOptionItem;
     private String[] mDriveOptionItem;
+    private IBaseFileBean mFrom;
 
     public static NavigationParentFragment newInstance(int type){
         Bundle b = new Bundle();
@@ -185,6 +186,7 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
                                 mPresenter.cut(bean);
                                 break;
                             case 3:
+                                mFrom = bean;
                                 if (mType==TYPE_LOCAL){
                                     getMainActivity().selectPath(MainActivity.SELECT_UPLOAD);
 
@@ -201,9 +203,9 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
 
     public void onPathSelected(IBaseFileBean to){
         if (mType==TYPE_LOCAL){
-            mPresenter.upload(getCurrentBean(),to);
+            mPresenter.upload(mFrom,to);
         }else if (mType==TYPE_ONEDRIVE){
-            mPresenter.download(getCurrentBean(),to);
+            mPresenter.download(mFrom,to);
         }
     }
 

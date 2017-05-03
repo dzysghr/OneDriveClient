@@ -29,13 +29,13 @@ public class TaskDispatcher {
     private List<DownLoadTask> mDownLoadTask = new ArrayList<>();
     private HashMap<TaskHandle, DownLoadTask> mTaskMap = new HashMap<>();
     private HandlerThread mHandlerThread;
-    private List<DownLoadTask> mRunningQueue;
-    private List<DownLoadTask> mWaitting;
+    private List<DownLoadTask> mRunningQueue = new ArrayList<>();
+    private List<DownLoadTask> mWaitting = new ArrayList<>();
     private int mMaxTask = 5;
     private WorkerHandler mHandler;
-    private TaskListener mTaskListener;
+    private BaseListener mTaskListener;
 
-    public TaskDispatcher(DownloadContext context,TaskListener listener){
+    public TaskDispatcher(DownloadContext context, BaseListener listener) {
         mContext = context;
         mHandlerThread = new HandlerThread("TaskDispatcher handler");
         mHandlerThread.start();
@@ -47,90 +47,91 @@ public class TaskDispatcher {
         mHandlerThread.quit();
     }
 
-    public void submit(int msg,Object o){
+    public void submit(int msg, Object o) {
         Message m = mHandler.obtainMessage(msg);
         m.obj = o;
         m.sendToTarget();
     }
 
-    public void submitDelay(int msg,Object o,int time){
+    public void submitDelay(int msg, Object o, int time) {
         Message m = mHandler.obtainMessage(msg);
         m.obj = o;
-        mHandler.sendMessageDelayed(m,time);
+        mHandler.sendMessageDelayed(m, time);
     }
 
-    private void create(TaskHandle handle){
-        DownLoadTask task = new DownLoadTask(mContext,handle,this);
-        mTaskMap.put(handle,task);
+    private void create(TaskHandle handle) {
+        DownLoadTask task = new DownLoadTask(mContext, handle, this);
+        mTaskMap.put(handle, task);
     }
 
-    private void start(TaskHandle handle){
-        if (!mTaskMap.containsKey(handle)){
+    private void start(TaskHandle handle) {
+        if (!mTaskMap.containsKey(handle)) {
             create(handle);
         }
         DownLoadTask task = mTaskMap.get(handle);
-        if (mRunningQueue.size()>=mMaxTask){
+        if (mRunningQueue.size() >= mMaxTask) {
             mWaitting.add(task);
             handle.setState(TaskState.STATE_WAIT);
-        }else{
+        } else {
             mRunningQueue.add(task);
             task.execute();
         }
     }
 
-    private void update(TaskHandle handle){
+    private void update(TaskHandle handle) {
         mTaskListener.onUpdate(handle);
     }
 
-    private void stateChanged(TaskHandle handle){
-        if (handle.getState()==TaskState.STATE_FINISH){
+    private void stateChanged(TaskHandle handle) {
+        if (handle.getState() == TaskState.STATE_FINISH) {
             scheduleNext(handle);
         }
         mTaskListener.onStateChange(handle);
     }
 
-    private void scheduleNext(TaskHandle handle){
+    private void scheduleNext(TaskHandle handle) {
         mRunningQueue.remove(mTaskMap.get(handle));
-        if (!mWaitting.isEmpty()){
+        if (!mWaitting.isEmpty()) {
             DownLoadTask next = mWaitting.remove(0);
             mRunningQueue.add(next);
             next.execute();
         }
     }
 
-    private void delete(TaskHandle handle){
-         if (mTaskMap.containsKey(handle)){
-             DownLoadTask task = mTaskMap.get(handle);
-             if (task.isRunning()){
-                 task.stop();
-                 submitDelay(MSG_DELETE,handle,1000);
-             }else{
-                 TaskInfo info = handle.getTaskInfo();
-                 if (info.getFinish()!=info.getLength()){
-                     new File(info.getFilePath()).deleteOnExit();
-                 }
-                 info.resetThreads();
-                 mContext.getThreadDao().deleteInTx(info.getThreads());
-                 mContext.getTaskDao().delete(info);
-             }
-         }
+    private void delete(TaskHandle handle) {
+        if (mTaskMap.containsKey(handle)) {
+            DownLoadTask task = mTaskMap.get(handle);
+            if (task.isRunning()) {
+                task.stop();
+                submitDelay(MSG_DELETE, handle, 1000);
+                return;
+            }
+        }
+        TaskInfo info = handle.getTaskInfo();
+        if (info.getFinish() != info.getLength()) {
+            new File(info.getFilePath()).deleteOnExit();
+        }
+        info.resetThreads();
+        mContext.getThreadDao().deleteInTx(info.getThreads());
+        mContext.getTaskDao().delete(info);
+
     }
 
-    private void stop(TaskHandle handle){
-        if (mTaskMap.containsKey(handle)){
+    private void stop(TaskHandle handle) {
+        if (mTaskMap.containsKey(handle)) {
             mTaskMap.get(handle).stop();
             scheduleNext(handle);
         }
     }
 
-    private class WorkerHandler extends Handler{
+    private class WorkerHandler extends Handler {
         public WorkerHandler(Looper looper) {
             super(looper);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 case MSG_CREATE:
                     create((TaskHandle) msg.obj);
                     break;
