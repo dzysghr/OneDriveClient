@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.download;
+package com.dzy.onedriveclient.transfer;
 
 /**
  * Created by dzysg on 2017/5/1 0001.

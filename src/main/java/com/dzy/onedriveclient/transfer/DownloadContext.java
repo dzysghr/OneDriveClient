@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.download;
+package com.dzy.onedriveclient.transfer;
 
 import android.content.Context;
 

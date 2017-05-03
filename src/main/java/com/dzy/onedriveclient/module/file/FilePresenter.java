@@ -198,6 +198,7 @@ public class FilePresenter implements IFilePresenter {
     @Override
     public void download(IBaseFileBean from, IBaseFileBean to) {
         RxBus.getDefault().post(new DownloadEvent(from,to));
+        mView.Toast("已添加到下载队列");
     }
 
     @Override

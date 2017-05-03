@@ -1,11 +1,10 @@
-package com.dzy.onedriveclient.download;
+package com.dzy.onedriveclient.transfer;
 
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
  * Created by dzysg on 2017/4/23 0023.
  */
 
-public class TaskDispatcher {
+public abstract class AbstractDispatcher<T extends ITask> {
 
     public static final int MSG_CREATE = 0;
     public static final int MSG_INIT = 1;
@@ -25,19 +24,18 @@ public class TaskDispatcher {
     public static final int MSG_STATE_CHANGED = 8;
 
 
-    private DownloadContext mContext;
-    private List<DownLoadTask> mDownLoadTask = new ArrayList<>();
-    private HashMap<TaskHandle, DownLoadTask> mTaskMap = new HashMap<>();
-    private HandlerThread mHandlerThread;
-    private List<DownLoadTask> mRunningQueue = new ArrayList<>();
-    private List<DownLoadTask> mWaitting = new ArrayList<>();
-    private int mMaxTask = 5;
-    private WorkerHandler mHandler;
-    private BaseListener mTaskListener;
+    protected DownloadContext mContext;
+    protected HashMap<TaskHandle, T> mTaskMap = new HashMap<>();
+    protected HandlerThread mHandlerThread;
+    protected List<T> mRunningQueue = new ArrayList<>();
+    protected List<T> mWaitting = new ArrayList<>();
+    protected int mMaxTask = 5;
+    protected WorkerHandler mHandler;
+    protected BaseListener mTaskListener;
 
-    public TaskDispatcher(DownloadContext context, BaseListener listener) {
+    public AbstractDispatcher(DownloadContext context, BaseListener listener) {
         mContext = context;
-        mHandlerThread = new HandlerThread("TaskDispatcher handler");
+        mHandlerThread = new HandlerThread("DownloadDispatcher handler");
         mHandlerThread.start();
         mHandler = new WorkerHandler(mHandlerThread.getLooper());
         mTaskListener = listener;
@@ -59,16 +57,14 @@ public class TaskDispatcher {
         mHandler.sendMessageDelayed(m, time);
     }
 
-    private void create(TaskHandle handle) {
-        DownLoadTask task = new DownLoadTask(mContext, handle, this);
-        mTaskMap.put(handle, task);
-    }
+    protected abstract void delete(TaskHandle handle);
+    protected abstract void create(TaskHandle handle);
 
     private void start(TaskHandle handle) {
         if (!mTaskMap.containsKey(handle)) {
             create(handle);
         }
-        DownLoadTask task = mTaskMap.get(handle);
+        T task = mTaskMap.get(handle);
         if (mRunningQueue.size() >= mMaxTask) {
             mWaitting.add(task);
             handle.setState(TaskState.STATE_WAIT);
@@ -92,30 +88,13 @@ public class TaskDispatcher {
     private void scheduleNext(TaskHandle handle) {
         mRunningQueue.remove(mTaskMap.get(handle));
         if (!mWaitting.isEmpty()) {
-            DownLoadTask next = mWaitting.remove(0);
+            T next = mWaitting.remove(0);
             mRunningQueue.add(next);
             next.execute();
         }
     }
 
-    private void delete(TaskHandle handle) {
-        if (mTaskMap.containsKey(handle)) {
-            DownLoadTask task = mTaskMap.get(handle);
-            if (task.isRunning()) {
-                task.stop();
-                submitDelay(MSG_DELETE, handle, 1000);
-                return;
-            }
-        }
-        TaskInfo info = handle.getTaskInfo();
-        if (info.getFinish() != info.getLength()) {
-            new File(info.getFilePath()).deleteOnExit();
-        }
-        info.resetThreads();
-        mContext.getThreadDao().deleteInTx(info.getThreads());
-        mContext.getTaskDao().delete(info);
 
-    }
 
     private void stop(TaskHandle handle) {
         if (mTaskMap.containsKey(handle)) {

@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.download;
+package com.dzy.onedriveclient.transfer;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;

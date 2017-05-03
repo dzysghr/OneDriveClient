@@ -13,7 +13,9 @@ import com.dzy.onedriveclient.model.ModelFactory;
 import com.dzy.onedriveclient.model.drive.TokenBean;
 import com.dzy.onedriveclient.model.drive.TokenModel;
 import com.dzy.onedriveclient.module.login.LoginActivity;
+import com.dzy.onedriveclient.transfer.UploadSession;
 import com.dzy.onedriveclient.utils.RxHelper;
+import com.google.gson.Gson;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
@@ -48,7 +50,15 @@ public class WelcomeActivity extends BaseActivity {
     @Override
     public void afterSetContent() {
         super.afterSetContent();
-        checkLogin();
+        //checkLogin();
+        String json = "{\n" +
+                "  \"uploadUrl\": \"https://sn3302.up.1drv.com/up/fe6987415ace7X4e1eF866337\",\n" +
+                "  \"expirationDateTime\": \"2015-01-29T09:21:55.523Z\",\n" +
+                "  \"nextExpectedRanges\": [\"0-\"]\n" +
+                "}";
+
+        Gson gson = new Gson();
+        UploadSession session = gson.fromJson(json, UploadSession.class);
     }
 
     protected void checkLogin(){

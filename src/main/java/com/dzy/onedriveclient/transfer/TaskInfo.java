@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.download;
+package com.dzy.onedriveclient.transfer;
 
 import com.dzy.onedriveclient.model.gen.DaoSession;
 import com.dzy.onedriveclient.model.gen.TaskInfoDao;

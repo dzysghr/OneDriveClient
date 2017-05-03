@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.download;
+package com.dzy.onedriveclient.transfer;
 
 
 import java.io.File;
@@ -9,24 +9,16 @@ import java.io.File;
 
 public class TaskHandle {
 
-
     private TaskInfo mTaskInfo;
-    private DownloadManager mDownloadManager;
+    private ITaskManager mManager;
     private File mFile;
     private int mState = TaskState.STATE_INIT;
-    private long mFinish;
-    private long mLength;
     private int mSpeed;
 
-
-    TaskHandle(TaskInfo taskInfo, DownloadManager downloadManager) {
+    TaskHandle(TaskInfo taskInfo, ITaskManager manager) {
         mTaskInfo = taskInfo;
-        mDownloadManager = downloadManager;
+        mManager = manager;
         mFile = new File(mTaskInfo.getFilePath());
-    }
-
-    DownloadManager getManager(){
-        return mDownloadManager;
     }
 
     TaskInfo getTaskInfo() {
@@ -34,15 +26,15 @@ public class TaskHandle {
     }
 
     public void stop(){
-        mDownloadManager.stop(this);
+        mManager.stop(this);
     }
 
     public void start(){
-        mDownloadManager.start(this);
+        mManager.start(this);
     }
 
     public void delete(boolean withFile){
-        mDownloadManager.delete(this,withFile);
+        mManager.delete(this,withFile);
     }
 
     public String getPath(){

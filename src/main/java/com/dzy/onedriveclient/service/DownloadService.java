@@ -9,9 +9,9 @@ import android.widget.Toast;
 
 import com.dzy.commemlib.rxbus.RxBus;
 import com.dzy.onedriveclient.config.Constants;
-import com.dzy.onedriveclient.download.DownloadContext;
-import com.dzy.onedriveclient.download.DownloadManager;
-import com.dzy.onedriveclient.download.TaskHandle;
+import com.dzy.onedriveclient.transfer.DownloadContext;
+import com.dzy.onedriveclient.transfer.DownloadManager;
+import com.dzy.onedriveclient.transfer.TaskHandle;
 import com.dzy.onedriveclient.event.DownloadEvent;
 import com.dzy.onedriveclient.model.ModelFactory;
 import com.dzy.onedriveclient.model.drive.DriveFile;

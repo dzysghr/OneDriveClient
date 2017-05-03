@@ -14,10 +14,10 @@ import com.dzy.commemlib.ui.BaseAdapter.ContentHolder;
 import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
-import com.dzy.onedriveclient.download.DownloadManager;
-import com.dzy.onedriveclient.download.TaskHandle;
-import com.dzy.onedriveclient.download.TaskListener;
-import com.dzy.onedriveclient.download.TaskState;
+import com.dzy.onedriveclient.transfer.DownloadManager;
+import com.dzy.onedriveclient.transfer.TaskHandle;
+import com.dzy.onedriveclient.transfer.TaskListener;
+import com.dzy.onedriveclient.transfer.TaskState;
 import com.dzy.onedriveclient.service.DownloadService;
 import com.dzy.onedriveclient.utils.OpenFileHelper;
 

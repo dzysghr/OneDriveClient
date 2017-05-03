@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.download;
+package com.dzy.onedriveclient.transfer;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -19,13 +19,12 @@ import io.reactivex.functions.Function;
  * Created by dzysg on 2017/4/29 0029.
  */
 
-public class DownloadManager {
+public class DownloadManager implements ITaskManager{
 
-    private TaskDispatcher mTaskDispatcher;
+    private DownloadDispatcher mDownloadDispatchers;
     private DownloadContext mDownloadContext;
     private List<TaskHandle> mTaskList = new ArrayList<>();
 
-    private int mMaxTask;
     private List<TaskListener> mTaskListenerList;
     private NotifyHandler mNotifyHandler;
 
@@ -34,7 +33,7 @@ public class DownloadManager {
         DLHelper.checkNull(downloadContext, "downloadContext");
         mDownloadContext = downloadContext;
         mTaskListenerList = new ArrayList<>();
-        mTaskDispatcher = new TaskDispatcher(mDownloadContext, mNotifyHandler = new NotifyHandler(Looper.getMainLooper()));
+        mDownloadDispatchers = new DownloadDispatcher(mDownloadContext, mNotifyHandler = new NotifyHandler(Looper.getMainLooper()));
     }
 
     public void init() {
@@ -75,7 +74,7 @@ public class DownloadManager {
                         } else {
                             TaskInfo taskInfo = new TaskInfo(null, null, 0, localPath, null, url, 0);
                             TaskHandle handle = new TaskHandle(taskInfo, DownloadManager.this);
-                            mTaskDispatcher.submit(TaskDispatcher.MSG_CREATE, handle);
+                            mDownloadDispatchers.submit(AbstractDispatcher.MSG_CREATE, handle);
                             mTaskList.add(handle);
                             notifyListChanged();
                             return handle;
@@ -95,19 +94,22 @@ public class DownloadManager {
     }
 
 
-    void start(TaskHandle handle){
-        mTaskDispatcher.submit(TaskDispatcher.MSG_START,handle);
+    @Override
+    public void start(TaskHandle handle){
+        mDownloadDispatchers.submit(AbstractDispatcher.MSG_START,handle);
     }
 
-    void stop(TaskHandle handle){
-        mTaskDispatcher.submit(TaskDispatcher.MSG_STOP,handle);
+    @Override
+    public void stop(TaskHandle handle){
+        mDownloadDispatchers.submit(AbstractDispatcher.MSG_STOP,handle);
     }
 
-    void delete(TaskHandle handle,boolean deleteFile){
+    @Override
+    public void delete(TaskHandle handle,boolean deleteFile){
         if (deleteFile&&handle.getState()==TaskState.STATE_FINISH){
             new File(handle.getPath()).delete();
         }
-        mTaskDispatcher.submit(TaskDispatcher.MSG_DELETE,handle);
+        mDownloadDispatchers.submit(AbstractDispatcher.MSG_DELETE,handle);
         mTaskList.remove(handle);
         notifyListChanged();
     }

@@ -1,4 +1,4 @@
-package com.dzy.onedriveclient.download;
+package com.dzy.onedriveclient.transfer;
 
 import android.util.Log;
 
@@ -21,13 +21,13 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.dzy.onedriveclient.download.TaskState.*;
+import static com.dzy.onedriveclient.transfer.TaskState.*;
 
 /**
  * Created by dzysg on 2017/4/22 0022.
  */
 
-public class DownLoadTask {
+public class DownLoadTask implements ITask {
 
     private static final String TAG = "DownLoadTask";
     private DownloadContext mContext;
@@ -35,10 +35,10 @@ public class DownLoadTask {
     private List<DownLoadThread> mThreadList = new ArrayList<>(3);
     private int mState = STATE_INIT;
     private TaskInfo mTaskInfo;
-    private TaskDispatcher mDispatcher;
+    private DownloadDispatcher mDispatcher;
     private TaskHandle mTaskHandle;
 
-    public DownLoadTask(DownloadContext context, TaskHandle handle, TaskDispatcher dispatcher) {
+    public DownLoadTask(DownloadContext context, TaskHandle handle, DownloadDispatcher dispatcher) {
         DLHelper.checkNull(context, "context");
         DLHelper.checkNull(handle, "handle");
         mContext = context;
@@ -47,6 +47,7 @@ public class DownLoadTask {
         mDispatcher = dispatcher;
     }
 
+    @Override
     public void execute() {
         if (mState == STATE_PAUSE) {
             resume();
@@ -67,7 +68,7 @@ public class DownLoadTask {
 
                         if (mTaskInfo.getId() == null) {
                             mContext.getTaskDao().save(mTaskInfo);
-                            mDispatcher.submit(TaskDispatcher.MSG_INIT, mTaskHandle);
+                            mDispatcher.submit(DownloadDispatcher.MSG_INIT, mTaskHandle);
                         }
 
                         if (checkFinish(mTaskInfo)) {
@@ -116,9 +117,10 @@ public class DownLoadTask {
         }
         mState = state;
         mTaskHandle.setState(state);
-        mDispatcher.submit(TaskDispatcher.MSG_STATE_CHANGED, mTaskHandle);
+        mDispatcher.submit(DownloadDispatcher.MSG_STATE_CHANGED, mTaskHandle);
     }
 
+    @Override
     public void stop() {
         if (mState == STATE_RUNNING) {
             setState(STATE_PAUSE);
@@ -154,7 +156,7 @@ public class DownLoadTask {
         if (diff > 1000) {
             mContext.getTaskDao().update(mTaskInfo);
             mTaskHandle.setSpeed(Math.round(mLastFinish / diff * 1000f));
-            mDispatcher.submit(TaskDispatcher.MSG_UPDATE, mTaskHandle);
+            mDispatcher.submit(DownloadDispatcher.MSG_UPDATE, mTaskHandle);
             mLastTime = now;
             mLastFinish = 0;
         }
@@ -179,6 +181,7 @@ public class DownLoadTask {
         }
     }
 
+    @Override
     public boolean isRunning() {
         boolean run = false;
         for (DownLoadThread i : mThreadList) {
@@ -312,6 +315,7 @@ public class DownLoadTask {
                 Response response = mContext.getOkHttpClient().newCall(request).execute();
                 if (response.code() != 206) {
                     setState(STATE_ERROR);
+                    Log.e(TAG, "run: "+response.body().string());
                     return;
                 }
 
