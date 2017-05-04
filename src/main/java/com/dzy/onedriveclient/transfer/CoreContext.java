@@ -13,7 +13,7 @@ import okhttp3.OkHttpClient;
  * Created by dzysg on 2017/4/26 0026.
  */
 
-public class DownloadContext {
+public class CoreContext {
 
     private Context mContext;
     private TaskInfoDao mTaskDao = null;
@@ -41,12 +41,9 @@ public class DownloadContext {
         return mExecutor;
     }
 
-    public void setExecutor(Executor executor) {
-        mExecutor = executor;
-    }
 
     public static class Builder {
-        DownloadContext mContext = new DownloadContext();
+        CoreContext mContext = new CoreContext();
 
         public Builder(Context context) {
             mContext.mContext = context;
@@ -77,7 +74,7 @@ public class DownloadContext {
             }
         }
 
-        public DownloadContext build() {
+        public CoreContext build() {
             checkNull(mContext.mContext, "context");
             checkNull(mContext.mExecutor, "Executor");
             checkNull(mContext.mTaskDao, "TaskInfoDao");

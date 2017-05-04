@@ -30,7 +30,7 @@ import static com.dzy.onedriveclient.transfer.TaskState.*;
 public class DownLoadTask implements ITask {
 
     private static final String TAG = "DownLoadTask";
-    private DownloadContext mContext;
+    private CoreContext mContext;
     private int mThreadCount = 1;
     private List<DownLoadThread> mThreadList = new ArrayList<>(3);
     private int mState = STATE_INIT;
@@ -38,7 +38,7 @@ public class DownLoadTask implements ITask {
     private DownloadDispatcher mDispatcher;
     private TaskHandle mTaskHandle;
 
-    public DownLoadTask(DownloadContext context, TaskHandle handle, DownloadDispatcher dispatcher) {
+    public DownLoadTask(CoreContext context, TaskHandle handle, DownloadDispatcher dispatcher) {
         DLHelper.checkNull(context, "context");
         DLHelper.checkNull(handle, "handle");
         mContext = context;
@@ -54,7 +54,7 @@ public class DownLoadTask implements ITask {
             return;
         }
         if (mState != STATE_INIT) {
-            throw new IllegalStateException("当前状态不能调execute方法");
+            throw new IllegalStateException("can not execute the task in current state："+mState);
         }
         start();
     }
@@ -65,12 +65,10 @@ public class DownLoadTask implements ITask {
                 .flatMap(new Function<TaskInfo, ObservableSource<Long>>() {
                     @Override
                     public ObservableSource<Long> apply(@NonNull TaskInfo taskInfo) throws Exception {
-
                         if (mTaskInfo.getId() == null) {
                             mContext.getTaskDao().save(mTaskInfo);
                             mDispatcher.submit(DownloadDispatcher.MSG_INIT, mTaskHandle);
                         }
-
                         if (checkFinish(mTaskInfo)) {
                             setState(STATE_FINISH);
                             return Observable.empty();
@@ -78,17 +76,17 @@ public class DownLoadTask implements ITask {
                         if (mTaskInfo.getLength() == 0) {
                             return getContentLength();
                         } else {
-                            initTaskThreads();
-                            setState(STATE_READY);
-                            runAllThread();
-                            return Observable.empty();
+                            return Observable.just(0L);
                         }
                     }
-                }).doOnNext(new Consumer<Long>() {
+                })
+                .doOnNext(new Consumer<Long>() {
             @Override
             public void accept(@NonNull Long fileLength) throws Exception {
-                mTaskInfo.setLength(fileLength);
-                mContext.getTaskDao().save(mTaskInfo);
+                if (mTaskInfo.getLength()==0){
+                    mTaskInfo.setLength(fileLength);
+                    mContext.getTaskDao().save(mTaskInfo);
+                }
                 initTaskThreads();
                 setState(STATE_READY);
                 runAllThread();
@@ -163,22 +161,7 @@ public class DownLoadTask implements ITask {
     }
 
     private boolean checkFinish(TaskInfo info) {
-        if (info.getLength() != 0 && info.getFinish() == info.getLength()) {
-            return true;
-        }
-        List<ThreadInfo> threadInfos = info.getThreads();
-        if (threadInfos.isEmpty()) {
-            return false;
-        } else {
-            boolean finish = true;
-            for (ThreadInfo item : threadInfos) {
-                if (item.getFinished() != item.getEnd() - item.getStart()) {
-                    finish = false;
-                    break;
-                }
-            }
-            return finish;
-        }
+        return info.getLength() != 0 && info.getFinish() == info.getLength();
     }
 
     @Override
@@ -196,7 +179,7 @@ public class DownLoadTask implements ITask {
     private void initTaskThreads() {
         long fileLength = mTaskInfo.getLength();
         if (fileLength <= 0) {
-            throw new IllegalStateException("获取文件长度失败");
+            throw new IllegalStateException("can not get File length correctly,length :"+fileLength);
         }
         long finish = 0;
         if (!mTaskInfo.getThreads().isEmpty()) {
@@ -304,8 +287,13 @@ public class DownLoadTask implements ITask {
         @Override
         public void run() {
             mIsRunning = true;
-
             long start = mThreadInfo.getStart() + mThreadInfo.getFinished();
+            if (start==mThreadInfo.getEnd()){
+                mIsRunning = false;
+                mIsFinished = true;
+                return;
+            }
+
             Request request = new Request.Builder()
                     .url(mTaskInfo.getUrl())
                     .addHeader("Range", "bytes=" + start + "-" + mThreadInfo.getEnd()).build();
@@ -343,10 +331,7 @@ public class DownLoadTask implements ITask {
                     }
 
                     //下载暂停时,保存下载进度
-                    if (mState == STATE_PAUSE) {
-                        break;
-                    }
-                    if (mState == STATE_ERROR) {
+                    if (mState == STATE_PAUSE||mState == STATE_ERROR) {
                         break;
                     }
                 }

@@ -24,7 +24,7 @@ public abstract class AbstractDispatcher<T extends ITask> {
     public static final int MSG_STATE_CHANGED = 8;
 
 
-    protected DownloadContext mContext;
+    protected CoreContext mContext;
     protected HashMap<TaskHandle, T> mTaskMap = new HashMap<>();
     protected HandlerThread mHandlerThread;
     protected List<T> mRunningQueue = new ArrayList<>();
@@ -33,7 +33,7 @@ public abstract class AbstractDispatcher<T extends ITask> {
     protected WorkerHandler mHandler;
     protected BaseListener mTaskListener;
 
-    public AbstractDispatcher(DownloadContext context, BaseListener listener) {
+    public AbstractDispatcher(CoreContext context, BaseListener listener) {
         mContext = context;
         mHandlerThread = new HandlerThread("DownloadDispatcher handler");
         mHandlerThread.start();
@@ -57,14 +57,33 @@ public abstract class AbstractDispatcher<T extends ITask> {
         mHandler.sendMessageDelayed(m, time);
     }
 
-    protected abstract void delete(TaskHandle handle);
-    protected abstract void create(TaskHandle handle);
+    protected  void delete(TaskHandle handle){
+        if (mTaskMap.containsKey(handle)){
+            T task = mTaskMap.remove(handle);
+            mWaitting.remove(task);
+            mRunningQueue.remove(task);
+        }
+    }
 
-    private void start(TaskHandle handle) {
+    protected abstract  T createTask(TaskHandle handle);
+
+    protected void create(TaskHandle handle){
+        T t = createTask(handle);
+        mTaskMap.put(handle,t);
+    }
+
+    protected void start(TaskHandle handle) {
         if (!mTaskMap.containsKey(handle)) {
             create(handle);
         }
         T task = mTaskMap.get(handle);
+        if (task==null){
+            throw new IllegalStateException("you should override the create method to create the ITask");
+        }
+
+        if (mRunningQueue.contains(task)){
+            return;
+        }
         if (mRunningQueue.size() >= mMaxTask) {
             mWaitting.add(task);
             handle.setState(TaskState.STATE_WAIT);
@@ -74,18 +93,18 @@ public abstract class AbstractDispatcher<T extends ITask> {
         }
     }
 
-    private void update(TaskHandle handle) {
+    protected void update(TaskHandle handle) {
         mTaskListener.onUpdate(handle);
     }
 
-    private void stateChanged(TaskHandle handle) {
+    protected void stateChanged(TaskHandle handle) {
         if (handle.getState() == TaskState.STATE_FINISH) {
             scheduleNext(handle);
         }
         mTaskListener.onStateChange(handle);
     }
 
-    private void scheduleNext(TaskHandle handle) {
+    protected void scheduleNext(TaskHandle handle) {
         mRunningQueue.remove(mTaskMap.get(handle));
         if (!mWaitting.isEmpty()) {
             T next = mWaitting.remove(0);
@@ -94,9 +113,7 @@ public abstract class AbstractDispatcher<T extends ITask> {
         }
     }
 
-
-
-    private void stop(TaskHandle handle) {
+    protected void stop(TaskHandle handle) {
         if (mTaskMap.containsKey(handle)) {
             mTaskMap.get(handle).stop();
             scheduleNext(handle);

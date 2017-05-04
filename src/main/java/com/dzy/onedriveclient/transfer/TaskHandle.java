@@ -10,12 +10,12 @@ import java.io.File;
 public class TaskHandle {
 
     private TaskInfo mTaskInfo;
-    private ITaskManager mManager;
+    private AbstractManager mManager;
     private File mFile;
     private int mState = TaskState.STATE_INIT;
     private int mSpeed;
 
-    TaskHandle(TaskInfo taskInfo, ITaskManager manager) {
+    TaskHandle(TaskInfo taskInfo, AbstractManager manager) {
         mTaskInfo = taskInfo;
         mManager = manager;
         mFile = new File(mTaskInfo.getFilePath());

@@ -8,14 +8,14 @@ import java.io.File;
 
 public class DownloadDispatcher extends AbstractDispatcher<DownLoadTask> {
 
-    public DownloadDispatcher(DownloadContext context, BaseListener listener) {
+
+    public DownloadDispatcher(CoreContext context, BaseListener listener) {
         super(context, listener);
     }
 
     @Override
-    protected void create(TaskHandle handle) {
-        DownLoadTask task = new DownLoadTask(mContext, handle, this);
-        mTaskMap.put(handle, task);
+    protected DownLoadTask createTask(TaskHandle handle) {
+        return  new DownLoadTask(mContext, handle, this);
     }
 
     @Override
@@ -35,5 +35,7 @@ public class DownloadDispatcher extends AbstractDispatcher<DownLoadTask> {
         info.resetThreads();
         mContext.getThreadDao().deleteInTx(info.getThreads());
         mContext.getTaskDao().delete(info);
+
+        super.delete(handle);
     }
 }
