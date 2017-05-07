@@ -19,7 +19,6 @@ import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.DBModel;
 import com.dzy.onedriveclient.model.ModelFactory;
 import com.dzy.onedriveclient.model.drive.TokenBean;
-import com.dzy.onedriveclient.model.drive.TokenModel;
 import com.dzy.onedriveclient.module.MainActivity;
 import com.dzy.onedriveclient.utils.RxHelper;
 import com.dzy.onedriveclient.utils.UserInfoSPUtils;
@@ -108,6 +107,9 @@ public class LoginActivity extends BaseActivity {
 
 
     private void logUsername(String msg){
+        if (mUsername!=null){
+            return;
+        }
         int i = msg.indexOf("login_hint=");
         if (i>-1){
             msg = msg.substring(i+11);
@@ -115,26 +117,25 @@ public class LoginActivity extends BaseActivity {
             if (i>-1){
                 msg = msg.substring(0,i);
             }
-            mUsername = msg;
+            mUsername = URLDecoder.decode(msg);
             Log.e(TAG, "logUsername: "+msg);
         }
 
     }
 
     private String getUsername(){
-        return URLDecoder.decode(mUsername);
+        return mUsername;
     }
 
     private void getToken(){
-        TokenModel model =  ModelFactory.getTokenModel();
-        model.getToken(Constants.CODE)
+        ModelFactory.setDBModel(new DBModel(LoginActivity.this.getApplicationContext(),getUsername()));
+        ModelFactory.getTokenModel().getToken(Constants.CODE)
                 .compose(RxHelper.<TokenBean>io_main())
                 .doOnNext(new Consumer<TokenBean>() {
                     @Override
                     public void accept(@NonNull TokenBean bean) throws Exception {
-                        ModelFactory.setDBModel(new DBModel(LoginActivity.this.getApplicationContext(),getUsername()));
                         ModelFactory.getTokenModel().saveToken(bean);
-                        UserInfoSPUtils.setUser(mUsername);
+                        UserInfoSPUtils.setUser(getUsername());
                     }
                 })
                 .subscribe(new Consumer<TokenBean>() {

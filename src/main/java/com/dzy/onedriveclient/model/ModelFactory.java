@@ -7,6 +7,7 @@ import com.dzy.onedriveclient.config.Constants;
 import com.dzy.onedriveclient.model.drive.IDriveFileModel;
 import com.dzy.onedriveclient.model.drive.IOAuthModel;
 import com.dzy.onedriveclient.model.drive.TokenModel;
+import com.dzy.onedriveclient.model.drive.IUserModel;
 import com.dzy.onedriveclient.utils.UserInfoSPUtils;
 
 import java.io.IOException;
@@ -32,6 +33,8 @@ public class ModelFactory {
     private static DBModel sDBModel;
 
     private static TokenModel sTokenModel;
+
+    private static IUserModel sUserModel;
 
     public static synchronized OkHttpClient getOkHttpClient(){
         if (sOkHttpClient==null){
@@ -93,8 +96,12 @@ public class ModelFactory {
         return sDBModel;
     }
 
-    public static void setDBModel(DBModel sDBModel) {
-        ModelFactory.sDBModel = sDBModel;
+    public static void setDBModel(DBModel db) {
+        if (sDBModel!=null){
+            sDBModel.close();
+        }
+        sTokenModel = new TokenModel(db);
+        sDBModel = db;
     }
 
     public static synchronized TokenModel getTokenModel(){
@@ -102,5 +109,18 @@ public class ModelFactory {
             sTokenModel = new TokenModel(getDBModel());
         }
         return sTokenModel;
+    }
+
+    public static IUserModel getsUserModel() {
+        if (sUserModel==null){
+            Retrofit retrofit = new Retrofit.Builder()
+                    .client(getOkHttpClient())
+                    .baseUrl(Constants.BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .build();
+            sUserModel =  retrofit.create(IUserModel.class);
+        }
+        return sUserModel;
     }
 }

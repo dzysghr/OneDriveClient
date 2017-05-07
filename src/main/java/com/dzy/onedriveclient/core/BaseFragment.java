@@ -140,7 +140,11 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public <T> T bindView(@IdRes int id){
-        return (T)mParent.findViewById(id);
+        Object o = mParent.findViewById(id);
+        if (o==null){
+            throw new NullPointerException("you are binding a wrong viewId");
+        }
+        return (T)o;
     }
 
     public BaseFragment newInstance(){
