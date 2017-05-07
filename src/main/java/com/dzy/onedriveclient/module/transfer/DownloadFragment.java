@@ -14,11 +14,11 @@ import com.dzy.commemlib.ui.BaseAdapter.ContentHolder;
 import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
+import com.dzy.onedriveclient.service.DownOrUploadService;
 import com.dzy.onedriveclient.transfer.DownloadManager;
 import com.dzy.onedriveclient.transfer.TaskHandle;
 import com.dzy.onedriveclient.transfer.TaskListener;
 import com.dzy.onedriveclient.transfer.TaskState;
-import com.dzy.onedriveclient.service.DownloadService;
 import com.dzy.onedriveclient.utils.OpenFileHelper;
 
 import java.io.File;
@@ -47,7 +47,7 @@ public class DownloadFragment extends BaseFragment implements TaskListener, Comm
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mAdapter = new TaskListAdapter(null,R.layout.list_item_task);
         mRecyclerView.setAdapter(mAdapter);
-        mDownloadManager = DownloadService.getDownloadManaer();
+        mDownloadManager = DownOrUploadService.getDownloadManager();
         mDownloadManager.addTaskListener(this);
     }
 
@@ -66,7 +66,7 @@ public class DownloadFragment extends BaseFragment implements TaskListener, Comm
     protected void LazyLoad() {
         Log.e(TAG, "LazyLoad download page: ");
         if (mDownloadManager!=null){
-            mAdapter.setData(mDownloadManager.getAllTask());
+            mAdapter.setData(mDownloadManager.getTaskList());
         }
     }
 
@@ -104,6 +104,7 @@ public class DownloadFragment extends BaseFragment implements TaskListener, Comm
                 handle.stop();
                 break;
             case TaskState.STATE_PAUSE:
+            case TaskState.STATE_ERROR:
                 handle.start();
                 break;
             case TaskState.STATE_FINISH:
@@ -138,7 +139,6 @@ public class DownloadFragment extends BaseFragment implements TaskListener, Comm
 
     private class TaskListAdapter extends CommonAdapter<TaskHandle> {
         private  String mPatten = "%.1fkb/%.1fkb   %.1fkb/s";
-
         public TaskListAdapter(List<TaskHandle> datas, @LayoutRes int id) {
             super(datas, id);
         }

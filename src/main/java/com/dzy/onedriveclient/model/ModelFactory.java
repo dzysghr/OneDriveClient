@@ -7,8 +7,10 @@ import com.dzy.onedriveclient.config.Constants;
 import com.dzy.onedriveclient.model.drive.IDriveFileModel;
 import com.dzy.onedriveclient.model.drive.IOAuthModel;
 import com.dzy.onedriveclient.model.drive.TokenModel;
+import com.dzy.onedriveclient.utils.UserInfoSPUtils;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -37,20 +39,22 @@ public class ModelFactory {
                 @Override
                 public Response intercept(Chain chain) throws IOException {
                     try {
-                        Request request = chain.request();
-                        request = request.newBuilder()
-                                .addHeader("Authorization", "Bearer " + (Constants.sToken==null?"":Constants.sToken.getAccess_token()))
-                                .build();
 
-                        Response response = chain.proceed(request);
-                        return response;
+                        Request request = chain.request();
+                        Log.e("OKHTTP", "request url "+request.url().toString());
+                        Request.Builder builder = request.newBuilder();
+                        if (Constants.sToken!=null&&!request.url().toString().contains("api.onedrive.com")){
+                            builder.addHeader("Authorization", "Bearer " + (Constants.sToken == null ? "" : Constants.sToken.getAccess_token()));
+                        }
+                        request = builder.build();
+                        return chain.proceed(request);
                     } catch ( IOException e) {
-                        Log.e("intercept", e.getMessage());
+                        Log.e("intercept","");
                         return null;
                     }
                 }
             };
-            sOkHttpClient = new OkHttpClient.Builder().addNetworkInterceptor(interceptor).build();
+            sOkHttpClient = new OkHttpClient.Builder().writeTimeout(100, TimeUnit.SECONDS).addNetworkInterceptor(interceptor).build();
         }
         return sOkHttpClient;
     }
@@ -84,7 +88,7 @@ public class ModelFactory {
 
     public static synchronized DBModel getDBModel() {
         if (sDBModel==null){
-            sDBModel = new DBModel(BaseApplication.getApp());
+            sDBModel = new DBModel(BaseApplication.getApp(),UserInfoSPUtils.getUser());
         }
         return sDBModel;
     }
@@ -95,7 +99,7 @@ public class ModelFactory {
 
     public static synchronized TokenModel getTokenModel(){
         if (sTokenModel==null){
-            sTokenModel = new TokenModel();
+            sTokenModel = new TokenModel(getDBModel());
         }
         return sTokenModel;
     }

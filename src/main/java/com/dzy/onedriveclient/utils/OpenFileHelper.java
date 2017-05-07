@@ -4,7 +4,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.dzy.onedriveclient.R;
@@ -126,7 +125,6 @@ public final class OpenFileHelper{
     }
 
     public static boolean openFile(File currentPath,Context context){
-        Log.d("OpenFileHelper",currentPath.toString());
         if (currentPath != null && currentPath.isFile()) {  
             String fileName = currentPath.toString();  
             Intent intent;

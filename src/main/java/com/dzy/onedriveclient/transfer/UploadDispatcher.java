@@ -13,12 +13,6 @@ public class UploadDispatcher extends AbstractDispatcher<UploadTask> {
 
     @Override
     protected UploadTask createTask(TaskHandle handle) {
-        return null;
-    }
-
-    @Override
-    protected void delete(TaskHandle handle) {
-        super.delete(handle);
-
+        return new UploadTask(mContext,handle,this);
     }
 }

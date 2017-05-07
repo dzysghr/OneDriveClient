@@ -14,7 +14,7 @@ import com.dzy.onedriveclient.model.IBaseFileBean;
 import com.dzy.onedriveclient.module.file.NavigationParentFragment;
 import com.dzy.onedriveclient.module.more.MoreFragment;
 import com.dzy.onedriveclient.module.transfer.TransferFragment;
-import com.dzy.onedriveclient.service.DownloadService;
+import com.dzy.onedriveclient.service.DownOrUploadService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +46,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     @Override
     protected void setupView() {
-        startService(DownloadService.class);
+        startService(DownOrUploadService.class);
         mBottomOk.setOnClickListener(this);
         mBottomCancel.setOnClickListener(this);
         mToast = Toast.makeText(this,"再次点击返回退出",Toast.LENGTH_SHORT);

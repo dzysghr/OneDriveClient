@@ -8,8 +8,6 @@ import android.net.NetworkInfo;
 import android.provider.Settings;
 
 import com.dzy.commemlib.utils.ActivityLifeCallBack;
-import com.dzy.onedriveclient.model.DBModel;
-import com.dzy.onedriveclient.model.ModelFactory;
 
 
 public class BaseApplication extends Application {
@@ -20,7 +18,6 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         sInstance =this;
-        ModelFactory.setDBModel(new DBModel(this));
         this.registerActivityLifecycleCallbacks(new ActivityLifeCallBack());
     }
 

@@ -16,11 +16,15 @@ import com.dzy.onedriveclient.config.Constants;
 import com.dzy.onedriveclient.config.OauthConfig;
 import com.dzy.onedriveclient.core.BaseActivity;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
+import com.dzy.onedriveclient.model.DBModel;
 import com.dzy.onedriveclient.model.ModelFactory;
 import com.dzy.onedriveclient.model.drive.TokenBean;
 import com.dzy.onedriveclient.model.drive.TokenModel;
 import com.dzy.onedriveclient.module.MainActivity;
 import com.dzy.onedriveclient.utils.RxHelper;
+import com.dzy.onedriveclient.utils.UserInfoSPUtils;
+
+import java.net.URLDecoder;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
@@ -31,6 +35,7 @@ public class LoginActivity extends BaseActivity {
     private WebView mWebView;
     private ProgressBar mProgressBar;
     private boolean mGetCode =false;
+    private String mUsername;
 
     @Override
     protected void initView() {
@@ -72,8 +77,8 @@ public class LoginActivity extends BaseActivity {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 LogUtils.d(TAG, url);
+                logUsername(url);
                 if (url.contains("?code=")&&!mGetCode) {
-
                     Constants.CODE = url.substring(url.indexOf("?code=") + "?code=".length());
                     Log.e(TAG, "onPageFinished: "+Constants.CODE);
                     getToken();
@@ -102,15 +107,40 @@ public class LoginActivity extends BaseActivity {
     }
 
 
+    private void logUsername(String msg){
+        int i = msg.indexOf("login_hint=");
+        if (i>-1){
+            msg = msg.substring(i+11);
+            i = msg.indexOf('&');
+            if (i>-1){
+                msg = msg.substring(0,i);
+            }
+            mUsername = msg;
+            Log.e(TAG, "logUsername: "+msg);
+        }
+
+    }
+
+    private String getUsername(){
+        return URLDecoder.decode(mUsername);
+    }
+
     private void getToken(){
         TokenModel model =  ModelFactory.getTokenModel();
         model.getToken(Constants.CODE)
                 .compose(RxHelper.<TokenBean>io_main())
+                .doOnNext(new Consumer<TokenBean>() {
+                    @Override
+                    public void accept(@NonNull TokenBean bean) throws Exception {
+                        ModelFactory.setDBModel(new DBModel(LoginActivity.this.getApplicationContext(),getUsername()));
+                        ModelFactory.getTokenModel().saveToken(bean);
+                        UserInfoSPUtils.setUser(mUsername);
+                    }
+                })
                 .subscribe(new Consumer<TokenBean>() {
                     @Override
                     public void accept(@NonNull TokenBean bean) throws Exception {
                         Constants.sToken =bean;
-                        ModelFactory.getTokenModel().saveToken(bean);
                         startActivity(MainActivity.class);
                         finish();
                     }

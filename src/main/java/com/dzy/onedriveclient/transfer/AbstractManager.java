@@ -35,8 +35,7 @@ public abstract class AbstractManager {
 
     abstract List<TaskHandle> initTaskList();
 
-    abstract Observable<TaskHandle> createTask(final String url, final String localPath);
-
+    public abstract Observable<TaskHandle> createTask(String ...arg);
 
     public List<TaskHandle> getTaskList() {
         return mTaskList;

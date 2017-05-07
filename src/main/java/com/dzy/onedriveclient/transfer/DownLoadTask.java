@@ -21,7 +21,12 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.dzy.onedriveclient.transfer.TaskState.*;
+import static com.dzy.onedriveclient.transfer.TaskState.STATE_ERROR;
+import static com.dzy.onedriveclient.transfer.TaskState.STATE_FINISH;
+import static com.dzy.onedriveclient.transfer.TaskState.STATE_INIT;
+import static com.dzy.onedriveclient.transfer.TaskState.STATE_PAUSE;
+import static com.dzy.onedriveclient.transfer.TaskState.STATE_READY;
+import static com.dzy.onedriveclient.transfer.TaskState.STATE_RUNNING;
 
 /**
  * Created by dzysg on 2017/4/22 0022.
@@ -174,6 +179,17 @@ public class DownLoadTask implements ITask {
             }
         }
         return run;
+    }
+
+    @Override
+    public void cancel() {
+        TaskInfo info = mTaskInfo;
+        if (info.getFinish() != info.getLength()) {
+            new File(info.getFilePath()).deleteOnExit();
+        }
+        info.resetThreads();
+        mContext.getThreadDao().deleteInTx(info.getThreads());
+        mContext.getTaskDao().delete(info);
     }
 
     private void initTaskThreads() {

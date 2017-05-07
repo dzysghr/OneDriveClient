@@ -5,6 +5,7 @@ import android.util.Log;
 import com.dzy.commemlib.rxbus.RxBus;
 import com.dzy.onedriveclient.core.mvp.IBaseVIew;
 import com.dzy.onedriveclient.event.DownloadEvent;
+import com.dzy.onedriveclient.event.UploadEvent;
 import com.dzy.onedriveclient.model.IBaseFileBean;
 import com.dzy.onedriveclient.model.IFileModel;
 import com.dzy.onedriveclient.utils.RxHelper;
@@ -198,11 +199,14 @@ public class FilePresenter implements IFilePresenter {
     @Override
     public void download(IBaseFileBean from, IBaseFileBean to) {
         RxBus.getDefault().post(new DownloadEvent(from,to));
-        mView.Toast("已添加到下载队列");
     }
 
     @Override
     public void upload(IBaseFileBean from, IBaseFileBean to) {
-
+        if (from.isFolder()){
+            mView.Toast("不能上传文件夹");
+            return;
+        }
+        RxBus.getDefault().post(new UploadEvent(from,to));
     }
 }

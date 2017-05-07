@@ -47,7 +47,9 @@ public class DownloadManager extends AbstractManager {
 
 
     @Override
-    public Observable<TaskHandle> createTask(final String url, final String localPath) {
+    public Observable<TaskHandle> createTask(String... arg) {
+        final String url = arg[0];
+        final String localPath = arg[1];
         return Observable.just(1)
                 .compose(RxHelper.<Integer>checkNetwork())
                 .compose(RxHelper.<Integer>computation_main())

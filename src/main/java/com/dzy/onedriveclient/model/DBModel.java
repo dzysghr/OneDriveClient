@@ -14,9 +14,9 @@ public class DBModel {
     private Context mContext;
     private DaoSession mDaoSession;
 
-    public DBModel(Context context){
+    public DBModel(Context context,String dbname){
         mContext = context;
-        DaoMaster.DevOpenHelper helper =new DaoMaster.DevOpenHelper(context,"bean");
+        DaoMaster.DevOpenHelper helper =new DaoMaster.DevOpenHelper(context,dbname);
         mDb =helper.getWritableDatabase();
         mDaoMaster = new DaoMaster(mDb);
         mDaoSession = mDaoMaster.newSession();

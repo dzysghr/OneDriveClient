@@ -40,8 +40,8 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
     public static final int TYPE_ONEDRIVE = 1;
     private FileFragment mCurrent;
     private IFilePresenter mPresenter;
-    private String[] mLocalOptionItem;
-    private String[] mDriveOptionItem;
+    private String[] mLocalOptionItem = new String[] {"复制","删除","剪切","上传"};
+    private String[] mDriveOptionItem =new String[] {"复制","删除","剪切","下载"};
     private IBaseFileBean mFrom;
 
     public static NavigationParentFragment newInstance(int type){
@@ -62,9 +62,6 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
 
     @Override
     protected void setupView() {
-        mLocalOptionItem =new String[] {"复制","删除","剪切","上传"};
-        mDriveOptionItem =new String[] {"复制","删除","剪切","下载"};
-
         if (mType==TYPE_LOCAL){
             mPresenter = new FilePresenter(new LocalFileModel());
         }else{

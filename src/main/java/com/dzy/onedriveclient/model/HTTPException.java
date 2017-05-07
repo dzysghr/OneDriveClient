@@ -1,7 +1,7 @@
 package com.dzy.onedriveclient.model;
 
 
-public class HTTPException extends Exception {
+public class HTTPException extends RuntimeException {
 
     public int code;
 

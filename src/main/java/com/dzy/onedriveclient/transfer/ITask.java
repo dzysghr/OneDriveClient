@@ -8,4 +8,5 @@ public interface ITask {
     void execute();
     void stop();
     boolean isRunning();
+    void cancel();
 }

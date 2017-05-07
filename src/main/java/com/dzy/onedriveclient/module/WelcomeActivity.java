@@ -9,20 +9,18 @@ import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.config.Constants;
 import com.dzy.onedriveclient.core.BaseActivity;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
+import com.dzy.onedriveclient.model.DBModel;
 import com.dzy.onedriveclient.model.ModelFactory;
 import com.dzy.onedriveclient.model.drive.TokenBean;
 import com.dzy.onedriveclient.model.drive.TokenModel;
 import com.dzy.onedriveclient.module.login.LoginActivity;
-import com.dzy.onedriveclient.transfer.UploadSession;
 import com.dzy.onedriveclient.utils.RxHelper;
-import com.google.gson.Gson;
+import com.dzy.onedriveclient.utils.UserInfoSPUtils;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 
 public class WelcomeActivity extends BaseActivity {
-
-
     private Button mBtnOneDrive;
 
     @Override
@@ -40,9 +38,9 @@ public class WelcomeActivity extends BaseActivity {
         });
     }
 
-    private void openLoginActivity(){
+    private void openLoginActivity() {
         Intent i = new Intent(WelcomeActivity.this, LoginActivity.class);
-        i.putExtra(Constants.INTENT_KEY_COM_TYPE,Constants.INTENT_VALUE_COM_ONEDRIVE);
+        i.putExtra(Constants.INTENT_KEY_COM_TYPE, Constants.INTENT_VALUE_COM_ONEDRIVE);
         startActivity(i);
         finish();
     }
@@ -50,22 +48,19 @@ public class WelcomeActivity extends BaseActivity {
     @Override
     public void afterSetContent() {
         super.afterSetContent();
-        //checkLogin();
-        String json = "{\n" +
-                "  \"uploadUrl\": \"https://sn3302.up.1drv.com/up/fe6987415ace7X4e1eF866337\",\n" +
-                "  \"expirationDateTime\": \"2015-01-29T09:21:55.523Z\",\n" +
-                "  \"nextExpectedRanges\": [\"0-\"]\n" +
-                "}";
-
-        Gson gson = new Gson();
-        UploadSession session = gson.fromJson(json, UploadSession.class);
+        checkLogin();
     }
 
-    protected void checkLogin(){
-
+    protected void checkLogin() {
+        String user = UserInfoSPUtils.getUser();
+        if (user==null){
+            return;
+        }else{
+            ModelFactory.setDBModel(new DBModel(getApplicationContext(),user));
+        }
         final TokenModel model = ModelFactory.getTokenModel();
         TokenBean bean = model.getTokenFromDb();
-        if (bean!=null){
+        if (bean != null) {
             model.refreshToken(bean)
                     .compose(RxHelper.<TokenBean>io_main())
                     .subscribe(new Consumer<TokenBean>() {

@@ -28,7 +28,7 @@ public abstract class AbstractDispatcher<T extends ITask> {
     protected HashMap<TaskHandle, T> mTaskMap = new HashMap<>();
     protected HandlerThread mHandlerThread;
     protected List<T> mRunningQueue = new ArrayList<>();
-    protected List<T> mWaitting = new ArrayList<>();
+    protected List<T> mWaiting = new ArrayList<>();
     protected int mMaxTask = 5;
     protected WorkerHandler mHandler;
     protected BaseListener mTaskListener;
@@ -60,8 +60,12 @@ public abstract class AbstractDispatcher<T extends ITask> {
     protected  void delete(TaskHandle handle){
         if (mTaskMap.containsKey(handle)){
             T task = mTaskMap.remove(handle);
-            mWaitting.remove(task);
+            mWaiting.remove(task);
             mRunningQueue.remove(task);
+            task.cancel();
+        }else {
+            T t = createTask(handle);
+            t.cancel();
         }
     }
 
@@ -85,8 +89,9 @@ public abstract class AbstractDispatcher<T extends ITask> {
             return;
         }
         if (mRunningQueue.size() >= mMaxTask) {
-            mWaitting.add(task);
+            mWaiting.add(task);
             handle.setState(TaskState.STATE_WAIT);
+            stateChanged(handle);
         } else {
             mRunningQueue.add(task);
             task.execute();
@@ -98,7 +103,8 @@ public abstract class AbstractDispatcher<T extends ITask> {
     }
 
     protected void stateChanged(TaskHandle handle) {
-        if (handle.getState() == TaskState.STATE_FINISH) {
+        int state = handle.getState();
+        if (state==TaskState.STATE_FINISH||state ==TaskState.STATE_ERROR) {
             scheduleNext(handle);
         }
         mTaskListener.onStateChange(handle);
@@ -106,8 +112,9 @@ public abstract class AbstractDispatcher<T extends ITask> {
 
     protected void scheduleNext(TaskHandle handle) {
         mRunningQueue.remove(mTaskMap.get(handle));
-        if (!mWaitting.isEmpty()) {
-            T next = mWaitting.remove(0);
+        mWaiting.remove(mTaskMap.get(handle));
+        if (!mWaiting.isEmpty()) {
+            T next = mWaiting.remove(0);
             mRunningQueue.add(next);
             next.execute();
         }

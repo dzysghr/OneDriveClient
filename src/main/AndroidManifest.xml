@@ -38,7 +38,7 @@
         </activity>
 
         <service
-            android:name=".service.DownloadService"
+            android:name=".service.DownOrUploadService"
             android:enabled="true"
             android:exported="true">
         </service>

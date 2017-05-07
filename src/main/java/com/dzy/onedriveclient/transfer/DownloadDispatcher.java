@@ -1,7 +1,5 @@
 package com.dzy.onedriveclient.transfer;
 
-import java.io.File;
-
 /**
  * Created by dzysg on 2017/4/23 0023.
  */
@@ -27,15 +25,9 @@ public class DownloadDispatcher extends AbstractDispatcher<DownLoadTask> {
                 submitDelay(MSG_DELETE, handle, 1000);
                 return;
             }
-        }
-        TaskInfo info = handle.getTaskInfo();
-        if (info.getFinish() != info.getLength()) {
-            new File(info.getFilePath()).deleteOnExit();
-        }
-        info.resetThreads();
-        mContext.getThreadDao().deleteInTx(info.getThreads());
-        mContext.getTaskDao().delete(info);
+        }else{
 
+        }
         super.delete(handle);
     }
 }

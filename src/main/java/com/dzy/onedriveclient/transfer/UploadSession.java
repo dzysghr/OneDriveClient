@@ -161,4 +161,9 @@ public class UploadSession {
     public List<String> getNextExpectedRange() {
         return nextExpectedRanges;
     }
+
+    public void setNextExpectedRange(List<String> nextExpectedRange) {
+        nextExpectedRanges = nextExpectedRange;
+    }
+
 }

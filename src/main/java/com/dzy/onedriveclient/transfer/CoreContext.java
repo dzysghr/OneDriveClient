@@ -2,8 +2,10 @@ package com.dzy.onedriveclient.transfer;
 
 import android.content.Context;
 
+import com.dzy.onedriveclient.model.gen.DaoSession;
 import com.dzy.onedriveclient.model.gen.TaskInfoDao;
 import com.dzy.onedriveclient.model.gen.ThreadInfoDao;
+import com.dzy.onedriveclient.model.gen.UploadSessionDao;
 
 import java.util.concurrent.Executor;
 
@@ -16,9 +18,10 @@ import okhttp3.OkHttpClient;
 public class CoreContext {
 
     private Context mContext;
-    private TaskInfoDao mTaskDao = null;
-    private ThreadInfoDao mThreadDao = null;
-    private OkHttpClient mOkHttpClient =null;
+    private TaskInfoDao mTaskDao;
+    private ThreadInfoDao mThreadDao;
+    private OkHttpClient mOkHttpClient;
+    private UploadSessionDao mUploadSessionDao;
     private Executor mExecutor;
 
     public Context getContext() {
@@ -35,6 +38,10 @@ public class CoreContext {
 
     public OkHttpClient getOkHttpClient() {
         return mOkHttpClient;
+    }
+
+    public UploadSessionDao getUploadSessionDao() {
+        return mUploadSessionDao;
     }
 
     public Executor getExecutor() {
@@ -56,9 +63,10 @@ public class CoreContext {
         }
 
 
-        public Builder dao(TaskInfoDao dao, ThreadInfoDao threaddao) {
-            mContext.mTaskDao = dao;
-            mContext.mThreadDao = threaddao;
+        public Builder dao(DaoSession session) {
+            mContext.mTaskDao = session.getTaskInfoDao();
+            mContext.mThreadDao = session.getThreadInfoDao();
+            mContext.mUploadSessionDao = session.getUploadSessionDao();
             return this;
         }
 

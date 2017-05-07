@@ -21,8 +21,8 @@ public class TokenModel {
     private TokenBeanDao mTokenBeanDao;
     private IOAuthModel mAuthModel;
 
-    public TokenModel() {
-        mDBModel = ModelFactory.getDBModel();
+    public TokenModel(DBModel dbModel) {
+        mDBModel = dbModel;
         mTokenBeanDao = mDBModel.getDaoSession().getTokenBeanDao();
         mAuthModel = ModelFactory.getOAuthModel();
     }
