@@ -1,6 +1,8 @@
 package com.dzy.onedriveclient.module.more;
 
+import android.content.Intent;
 import android.util.Log;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -10,6 +12,7 @@ import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.ModelFactory;
 import com.dzy.onedriveclient.model.drive.Drive;
 import com.dzy.onedriveclient.model.drive.IUserModel;
+import com.dzy.onedriveclient.module.WelcomeActivity;
 import com.dzy.onedriveclient.utils.RxHelper;
 import com.google.gson.reflect.TypeToken;
 
@@ -32,16 +35,33 @@ public class MoreFragment extends BaseFragment {
     private TextView mTvSpace;
     private ProgressBar mProgressBar;
     private Drive mDrive;
+    private View mSwitchAccount;
+    private View mLogout;
+
     @Override
     protected void initView() {
         mTvUsername =  bindView(R.id.tvUserName);
         mTvSpace = bindView(R.id.tvSpace);
         mProgressBar = bindView(R.id.pb_diskSpace);
+        mSwitchAccount = bindView(R.id.layout_change_account);
+        mLogout = bindView(R.id.layout_logout);
     }
 
     @Override
     protected void setupView() {
+        mSwitchAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switchAccount();
+            }
+        });
+    }
 
+    private void switchAccount(){
+        getActivity().finish();
+        Intent i = new Intent(getContext(), WelcomeActivity.class);
+        i.putExtra(WelcomeActivity.KEY_AUTO_LOGIN,false);
+        startActivity(i);
     }
 
     @Override
