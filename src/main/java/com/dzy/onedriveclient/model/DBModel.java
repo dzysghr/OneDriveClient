@@ -13,8 +13,10 @@ public class DBModel {
     private SQLiteDatabase mDb;
     private Context mContext;
     private DaoSession mDaoSession;
+    private String mDbName;
 
     public DBModel(Context context,String dbname){
+        mDbName = dbname;
         mContext = context;
         DaoMaster.DevOpenHelper helper =new DaoMaster.DevOpenHelper(context,dbname);
         mDb =helper.getWritableDatabase();
@@ -26,6 +28,10 @@ public class DBModel {
 
     public DaoSession getDaoSession(){
         return mDaoSession;
+    }
+
+    public String getDBName(){
+        return mDbName;
     }
 
     public void close(){

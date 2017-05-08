@@ -98,6 +98,9 @@ public class ModelFactory {
 
     public static void setDBModel(DBModel db) {
         if (sDBModel!=null){
+            if (sDBModel.getDBName().equals(db.getDBName())){
+                return;
+            }
             sDBModel.close();
         }
         sTokenModel = new TokenModel(db);
