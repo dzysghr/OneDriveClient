@@ -1,22 +1,19 @@
 package com.dzy.onedriveclient.model;
 
-import android.util.Log;
-
 import com.dzy.onedriveclient.config.BaseApplication;
 import com.dzy.onedriveclient.config.Constants;
 import com.dzy.onedriveclient.model.drive.IDriveFileModel;
 import com.dzy.onedriveclient.model.drive.IOAuthModel;
-import com.dzy.onedriveclient.model.drive.TokenModel;
 import com.dzy.onedriveclient.model.drive.IUserModel;
+import com.dzy.onedriveclient.model.drive.TokenModel;
 import com.dzy.onedriveclient.utils.UserInfoSPUtils;
+import com.dzy.onedriveclient.utils.intercept.CacheInterceptor;
+import com.dzy.onedriveclient.utils.intercept.TokenInterceptor;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Interceptor;
+import okhttp3.Cache;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -38,26 +35,13 @@ public class ModelFactory {
 
     public static synchronized OkHttpClient getOkHttpClient(){
         if (sOkHttpClient==null){
-            Interceptor interceptor = new Interceptor() {
-                @Override
-                public Response intercept(Chain chain) throws IOException {
-                    try {
-
-                        Request request = chain.request();
-                        Log.e("OKHTTP", "request url "+request.url().toString());
-                        Request.Builder builder = request.newBuilder();
-                        if (Constants.sToken!=null&&!request.url().toString().contains("api.onedrive.com")){
-                            builder.addHeader("Authorization", "Bearer " + (Constants.sToken == null ? "" : Constants.sToken.getAccess_token()));
-                        }
-                        request = builder.build();
-                        return chain.proceed(request);
-                    } catch ( IOException e) {
-                        Log.e("intercept","");
-                        return null;
-                    }
-                }
-            };
-            sOkHttpClient = new OkHttpClient.Builder().writeTimeout(100, TimeUnit.SECONDS).addNetworkInterceptor(interceptor).build();
+            sOkHttpClient = new OkHttpClient
+                    .Builder()
+                    .writeTimeout(100, TimeUnit.SECONDS)
+                    .cache(new Cache(BaseApplication.getApp().getCacheDir(),50*1024*1024))
+                    .addInterceptor(new CacheInterceptor())
+                    .addNetworkInterceptor(new TokenInterceptor())
+                    .build();
         }
         return sOkHttpClient;
     }
@@ -70,7 +54,6 @@ public class ModelFactory {
                      .addConverterFactory(GsonConverterFactory.create())
                      .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                      .build();
-
             sIOAuthModel =  retrofit.create(IOAuthModel.class);
         }
         return sIOAuthModel;

@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.dzy.commemlib.utils.NetworkUtils;
 import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.config.Constants;
 import com.dzy.onedriveclient.core.BaseActivity;
@@ -94,24 +95,38 @@ public class WelcomeActivity extends BaseActivity {
         final TokenModel model = ModelFactory.getTokenModel();
         TokenBean bean = model.getTokenFromDb();
         if (bean != null) {
-            setLoginState(user);
-           mDisposable = model.refreshToken(bean)
-                    .compose(RxHelper.<TokenBean>checkNetwork())
-                    .compose(RxHelper.<TokenBean>io_main())
-                    .subscribe(new Consumer<TokenBean>() {
-                        @Override
-                        public void accept(@NonNull TokenBean bean) throws Exception {
-                            Constants.sToken = bean;
-                            startActivity(MainActivity.class);
-                            finish();
-                        }
-                    }, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(@NonNull Throwable throwable) throws Exception {
-                            Log.e(TAG, "accept: ", throwable);
-                        }
-                    });
+           setLoginState(user);
+            if (NetworkUtils.isNetworkConnected(this)){
+                refreshToken(bean,model);
+            }else{
+                Constants.sToken = bean;
+                startActivity(MainActivity.class);
+                finish();
+            }
+
         }
+    }
+
+    private void refreshToken(TokenBean bean,TokenModel model){
+        mDisposable = model.refreshToken(bean)
+                .compose(RxHelper.<TokenBean>checkNetwork())
+                .compose(RxHelper.<TokenBean>io_main())
+                .subscribe(new Consumer<TokenBean>() {
+                    @Override
+                    public void accept(@NonNull TokenBean bean) throws Exception {
+                        Constants.sToken = bean;
+                        startActivity(MainActivity.class);
+                        finish();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        Log.e(TAG, "accept: ", throwable);
+                        cancel();
+                        mTvMsg.setText("登录失败");
+
+                    }
+                });
     }
 
     private void setLoginState(String username){
@@ -126,11 +141,11 @@ public class WelcomeActivity extends BaseActivity {
         if (mDisposable!=null){
             mDisposable.dispose();
             mDisposable = null;
-            mTvMsg.setVisibility(View.GONE);
-            mBtnCancel.setVisibility(View.GONE);
-            mBtnChangeAccount.setVisibility(View.VISIBLE);
-            mBtnOneDrive.setVisibility(View.VISIBLE);
         }
+        mTvMsg.setText("");
+        mBtnCancel.setVisibility(View.GONE);
+        mBtnChangeAccount.setVisibility(View.VISIBLE);
+        mBtnOneDrive.setVisibility(View.VISIBLE);
     }
 
     private void showUserList(){

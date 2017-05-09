@@ -3,6 +3,8 @@ package com.dzy.onedriveclient.module.file;
 import android.util.Log;
 
 import com.dzy.commemlib.rxbus.RxBus;
+import com.dzy.commemlib.utils.NetworkUtils;
+import com.dzy.onedriveclient.config.BaseApplication;
 import com.dzy.onedriveclient.core.mvp.IBaseVIew;
 import com.dzy.onedriveclient.event.DownloadEvent;
 import com.dzy.onedriveclient.event.UploadEvent;
@@ -14,6 +16,7 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
 
@@ -25,6 +28,8 @@ public class FilePresenter implements IFilePresenter {
     protected IBaseFileBean mCopyOrCut;
     protected boolean mIsCopy;
     private List<IBaseFileBean> mList;
+
+    private Disposable mDisposable;
 
 
     private Consumer<Throwable> mHandleListError = new Consumer<Throwable>() {
@@ -59,6 +64,10 @@ public class FilePresenter implements IFilePresenter {
     @Override
     public void unSubscribe() {
         mView = null;
+        if (mDisposable!=null){
+            mDisposable.dispose();
+            mDisposable = null;
+        }
     }
 
     @Override
@@ -76,7 +85,8 @@ public class FilePresenter implements IFilePresenter {
     @Override
     public void refresh() {
         mView.showProgress();
-        mFileModel.getChildren(mCurrent, IFileModel.CACHE_NO)
+        mDisposable = mFileModel
+                .getChildren(mCurrent, IFileModel.CACHE_NO)
                 .compose(RxHelper.<List<IBaseFileBean>>io_main())
                 .subscribe(new Consumer<List<IBaseFileBean>>() {
                     @Override
@@ -106,6 +116,7 @@ public class FilePresenter implements IFilePresenter {
         mView.showProgress();
         mFileModel
                 .delete(bean)
+                .compose(RxHelper.<Boolean>checkNetwork())
                 .compose(RxHelper.<Boolean>io_main())
                 .doOnNext(new Consumer<Boolean>() {
                     @Override
@@ -158,6 +169,7 @@ public class FilePresenter implements IFilePresenter {
         }
         mView.showProgress();
         ob
+                .compose(RxHelper.<Boolean>checkNetwork())
                 .compose(RxHelper.<Boolean>io_main())
                 .doOnNext(new Consumer<Boolean>() {
                     @Override
@@ -180,6 +192,7 @@ public class FilePresenter implements IFilePresenter {
     @Override
     public void createFolder(String name) {
         mFileModel.createFolder(mCurrent, name)
+                .compose(RxHelper.<IBaseFileBean>checkNetwork())
                 .compose(RxHelper.<IBaseFileBean>io_main())
                 .subscribe(new Consumer<IBaseFileBean>() {
                     @Override
@@ -198,7 +211,11 @@ public class FilePresenter implements IFilePresenter {
 
     @Override
     public void download(IBaseFileBean from, IBaseFileBean to) {
-        RxBus.getDefault().post(new DownloadEvent(from,to));
+        if (!NetworkUtils.isNetworkConnected(BaseApplication.getApp())){
+            mView.Toast("请检查网络");
+        }else{
+            RxBus.getDefault().post(new DownloadEvent(from,to));
+        }
     }
 
     @Override
@@ -207,6 +224,10 @@ public class FilePresenter implements IFilePresenter {
             mView.Toast("不能上传文件夹");
             return;
         }
-        RxBus.getDefault().post(new UploadEvent(from,to));
+        if (!NetworkUtils.isNetworkConnected(BaseApplication.getApp())){
+            mView.Toast("请检查网络");
+        }else{
+            RxBus.getDefault().post(new UploadEvent(from,to));
+        }
     }
 }
