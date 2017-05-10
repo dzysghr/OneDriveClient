@@ -21,9 +21,7 @@ import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okio.Buffer;
 import okio.BufferedSink;
-import okio.ForwardingSink;
 import okio.Okio;
 import okio.Sink;
 import okio.Source;
@@ -117,7 +115,7 @@ public class UploadTask implements ITask {
     }
 
     private void startThread() {
-        if (mState == STATE_PAUSE || mState == STATE_READY) {
+        if (mState == STATE_PAUSE || mState == STATE_READY || mState == STATE_RUNNING) {
             mUploadThread = new UploadThread();
             mContext.getExecutor().execute(mUploadThread);
             setState(STATE_RUNNING);
@@ -172,11 +170,11 @@ public class UploadTask implements ITask {
                 "}";
         String url = null;
         if (info.getFileId() == null) {
-            url = Constants.BASE_URL + "drive/root:/"+file.getName()+":/createUploadSession";
+            url = Constants.BASE_URL + "drive/root:/" + file.getName() + ":/createUploadSession";
         } else {
             url = Constants.BASE_URL + "drive/items/" + info.getFileId() + ":/" + file.getName() + ":/createUploadSession";
         }
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"),"");
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
         //创建一个请求对象
         Request request = new Request.Builder()
                 .url(url)
@@ -201,7 +199,7 @@ public class UploadTask implements ITask {
     public void stop() {
         if (mState == TaskState.STATE_RUNNING) {
             setState(TaskState.STATE_PAUSE);
-            if(mUploadThread.isRunning){
+            if (mUploadThread.isRunning) {
                 mUploadThread.interrupt();
             }
         } else {
@@ -211,11 +209,10 @@ public class UploadTask implements ITask {
     }
 
     private void onFragmentSucceed(UploadSession session) {
-        if (session.getNextExpectedRange()!=null){
+        if (session.getNextExpectedRange() != null) {
             mSession.setNextExpectedRange(session.getNextExpectedRange());
-            mNeedUpdateSession =false;
+            mNeedUpdateSession = false;
         }
-        startThread();
     }
 
     private void onUploadSucceed() {
@@ -223,23 +220,24 @@ public class UploadTask implements ITask {
         setState(STATE_FINISH);
     }
 
-    private void onThreadEnd(){
+    private void onThreadEnd() {
         mContext.getTaskDao().update(mTaskInfo);
-        if (mUploadThread.mHaveError){
+        if (mUploadThread.mHaveError) {
             setState(TaskState.STATE_ERROR);
         }
-        if (mTaskInfo.getLength()==mTaskInfo.getFinish()){
+        if (mTaskInfo.getLength() == mTaskInfo.getFinish()) {
             onUploadSucceed();
         }
     }
 
     private long mLastTime;
     private long mLastFinish;
+
     private void updateProgress(long len) {
         mTaskInfo.setFinish(mTaskInfo.getFinish() + len);
         long now = System.currentTimeMillis();
         long diff = now - mLastTime;
-        mLastFinish +=len;
+        mLastFinish += len;
         if (diff > 1000) {
             mTaskHandle.setSpeed(Math.round(mLastFinish / diff * 1000f));
             mDispatcher.submit(AbstractDispatcher.MSG_UPDATE, mTaskHandle);
@@ -250,33 +248,33 @@ public class UploadTask implements ITask {
 
     @Override
     public boolean isRunning() {
-        return mUploadThread!=null&&mUploadThread.isRunning;
+        return mUploadThread != null && mUploadThread.isRunning;
     }
 
     @Override
     public void cancel() {
-        if (mUploadThread!=null&&mUploadThread.isRunning){
+        if (mUploadThread != null && mUploadThread.isRunning) {
             mUploadThread.interrupt();
         }
-        if (mSession==null){
+        if (mSession == null) {
             mContext.getTaskDao().delete(mTaskInfo);
             try {
                 mSession = getUploadSessionFromDB(mTaskInfo);
-                if (mSession!=null){
+                if (mSession != null) {
                     mContext.getUploadSessionDao().delete(mSession);
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
-        if (mSession==null){
+        if (mSession == null) {
             return;
         }
         Observable.just(mSession).subscribeOn(Schedulers.newThread())
                 .doOnNext(new Consumer<UploadSession>() {
                     @Override
                     public void accept(@NonNull UploadSession session) throws Exception {
-                        if (session.getUploadUrl()!=null){
+                        if (session.getUploadUrl() != null) {
                             Request request = new Request.Builder()
                                     .url(mSession.getUploadUrl())
                                     .delete()
@@ -295,6 +293,7 @@ public class UploadTask implements ITask {
         private BufferedSink bufferedSink;
         private FileInputStream mStream;
         private Source mSource;
+        private static final int sDefaultSegment = 2048;
 
         public FileStreamRequestBody(File file, long start, long end) {
             mStart = start;
@@ -318,35 +317,55 @@ public class UploadTask implements ITask {
                 //包装
                 bufferedSink = Okio.buffer(sink(sink));
             }
-            if (mSource == null){
+            if (mSource == null) {
                 mStream = new FileInputStream(mFile);
                 mStream.skip(mStart);
                 mSource = Okio.source(mStream);
             }
-            Log.e(TAG, "writeTo: ");
+            Log.e(TAG, "write start: ");
             //写入
-            bufferedSink.write(mSource,contentLength());
+            //bufferedSink.write(mSource,contentLength());
+            long read;
+            long total = 0;
+            long segment = sDefaultSegment;
+            long len = contentLength();
+            while ((read = mSource.read(sink.buffer(), segment)) != -1) {
+                sink.flush();
+                total += read;
+                //Log.e(TAG, "write: update" + read);
+                updateProgress(read);
+                if (segment != sDefaultSegment) {
+                    break;
+                }
+                if (len - total < segment) {
+                    segment = len - total;
+                }
+            }
+            Log.e(TAG, "write end: ");
             //必须调用flush，否则最后一部分数据可能不会被写入
             bufferedSink.flush();
             mSource.close();
+            bufferedSink.close();
         }
 
         private Sink sink(Sink sink) {
-            return new ForwardingSink(sink) {
-                @Override
-                public void write(Buffer source, long byteCount) throws IOException {
-                    super.write(source, byteCount);
-                    //增加当前写入的字节数
-                    updateProgress(byteCount);
-                }
-            };
+            return sink;
+//            return new ForwardingSink(sink) {
+//                @Override
+//                public void write(Buffer source, long byteCount) throws IOException {
+//                    super.write(source, byteCount);
+//                    Log.e(TAG, "write: update"+byteCount);
+//                    //增加当前写入的字节数
+//                    updateProgress(byteCount);
+//                }
+//            };
         }
     }
 
     private class UploadThread implements Runnable {
 
         private File mFile;
-        private static final long mMaxSize = 60 * 1024 * 1024;
+        private static final long mMaxSize = 2 * 1024 * 1024;
         private long mStart;
         private long mEnd;
         private Call mCall;
@@ -358,8 +377,8 @@ public class UploadTask implements ITask {
             mFile = new File(mTaskInfo.getFilePath());
         }
 
-        public void interrupt(){
-            if (isRunning&&mCall!=null){
+        public void interrupt() {
+            if (isRunning && mCall != null) {
                 mCall.cancel();
             }
             mCancel = true;
@@ -371,7 +390,7 @@ public class UploadTask implements ITask {
             if (array.length == 2) {
                 mEnd = Long.parseLong(array[1]);
             } else if (array.length == 1) {
-                mEnd = Math.min(mStart + mMaxSize, mFile.length()-1);
+                mEnd = Math.min(mStart + mMaxSize, mFile.length() - 1);
             } else {
                 throw new RuntimeException("parse nextRange error ,str:" + nextrange);
             }
@@ -381,42 +400,44 @@ public class UploadTask implements ITask {
         public void run() {
             isRunning = true;
             try {
-                if (mNeedUpdateSession) {
-                    updateUploadSession(mSession);
-                    Log.e(TAG, "Session update succeed");
-                }
-                mNeedUpdateSession = true;
-                String nextRange = mSession.getNextExpectedRange().get(0);
-                parseStartEnd(nextRange);
-                Log.e(TAG, "parseStartEnd: "+mStart+"-"+mEnd);
-                mTaskInfo.setFinish(mStart);
-
-                String range = "bytes " + mStart + "-" + mEnd + "/" + mFile.length();
-                Request request = new Request.Builder()
-                        .url(mSession.getUploadUrl())
-                        .header("Content-Range", range)
-                        .put(new FileStreamRequestBody(mFile, mStart, mEnd))
-                        .build();
-                mCall = mContext.getOkHttpClient().newCall(request);
-                Response response = mCall.execute();
-
-                int code = response.code();
-                if (code == 202) {
-                    UploadSession session = DLHelper.parseUploadSession(response.body().string(), null);
-                    onFragmentSucceed(session);
-                } else if (code == 201) {
-                    onUploadSucceed();
-                } else {
-                    Log.e(TAG, "run in uploadThread : " + response.body().string());
-                    throw new HTTPException(code);
+                while (!mCancel) {
+                    if (mNeedUpdateSession) {
+                        updateUploadSession(mSession);
+                        Log.e(TAG, "Session update succeed");
+                    }
+                    mNeedUpdateSession = true;
+                    String nextRange = mSession.getNextExpectedRange().remove(0);
+                    parseStartEnd(nextRange);
+                    mTaskInfo.setFinish(mStart);
+                    String range = "bytes " + mStart + "-" + mEnd + "/" + mFile.length();
+                    Request request = new Request.Builder()
+                            .url(mSession.getUploadUrl())
+                            .header("Content-Range", range)
+                            .put(new FileStreamRequestBody(mFile, mStart, mEnd))
+                            .build();
+                    mCall = mContext.getOkHttpClient().newCall(request);
+                    Log.e(TAG, "开始上传分片: " + mStart + "-" + mEnd);
+                    Response response = mCall.execute();
+                    Log.e(TAG, "结束上传分片: " + mStart + "-" + mEnd);
+                    int code = response.code();
+                    if (code == 202) {
+                        UploadSession session = DLHelper.parseUploadSession(response.body().string(), null);
+                        onFragmentSucceed(session);
+                    } else if (code == 201) {
+                        onUploadSucceed();
+                        break;
+                    } else {
+                        Log.e(TAG, "run in uploadThread : " + response.body().string());
+                        throw new HTTPException(code);
+                    }
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
-                if (!mCancel){
-                    mHaveError =true;
+                if (!mCancel) {
+                    mHaveError = true;
                 }
-            }finally {
+            } finally {
                 isRunning = false;
                 onThreadEnd();
             }

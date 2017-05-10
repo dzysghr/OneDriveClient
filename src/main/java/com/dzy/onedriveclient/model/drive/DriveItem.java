@@ -16,7 +16,6 @@ public class DriveItem {
     private String eTag;
     private ItemReference parentReference;
 
-
     public ItemReference getParentReference() {
         return parentReference;
     }

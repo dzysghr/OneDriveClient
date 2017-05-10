@@ -63,7 +63,7 @@ public class UploadManager extends AbstractManager {
                                 .build()
                                 .list();
                         if (!taskInfoList.isEmpty()) {
-                            throw new IllegalArgumentException("fileid or path conflict");
+                            throw new IllegalArgumentException("任务已经存在");
                         } else {
                             DLHelper.checkExistFile(localPath);
                             TaskInfo taskInfo = new TaskInfo(null, fileid,new File(localPath).length(), localPath, "upload", null, 0);

@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.View;
 
 import com.dzy.commemlib.ui.BaseAdapter.CommonAdapter;
+import com.dzy.commemlib.ui.ptr.PullToRefreshLayout;
+import com.dzy.commemlib.ui.ptr.RefreshLinstener;
 import com.dzy.onedriveclient.R;
 import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
@@ -20,15 +22,24 @@ public class FileFragment extends BaseFragment implements IFileView{
     protected FileListAdapter mAdapter;
     protected IFilePresenter mFilePresenter;
     private IBaseFileBean mCurrent;
-
+    private PullToRefreshLayout mPullToRefreshLayout;
 
     @Override
     protected void initView() {
         mRecyclerView = bindView(R.id.local_recycleView);
+        mPullToRefreshLayout = bindView(R.id.ptr);
     }
 
     @Override
     protected void setupView() {
+
+        mPullToRefreshLayout.setHeader(new BilibiliHeader(getContext()));
+        mPullToRefreshLayout.setRefreshLinstener(new RefreshLinstener() {
+            @Override
+            public void onRefreshStart() {
+                mFilePresenter.refresh();
+            }
+        });
 
         mAdapter = new FileListAdapter(null,R.layout.list_item_file);
         mAdapter.setErrorLayoutId(R.layout.list_item_error);
@@ -89,11 +100,13 @@ public class FileFragment extends BaseFragment implements IFileView{
     @Override
     public void showFileList(List<IBaseFileBean> list) {
         mAdapter.setData(list);
+        mPullToRefreshLayout.succeedRefresh();
     }
 
     @Override
     public void showErrorView() {
         mAdapter.showErrorView();
+        mPullToRefreshLayout.failRefresh();
     }
 
     @Override

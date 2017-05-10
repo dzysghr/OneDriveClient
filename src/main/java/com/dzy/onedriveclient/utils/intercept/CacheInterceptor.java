@@ -34,7 +34,7 @@ public class CacheInterceptor implements Interceptor {
         }else{
             isAuth = true;
         }
-        if (isAuth){
+        if (!isAuth){
             return chain.proceed(request)
                     .newBuilder()
                     .header("Cache-Control","public,max-age=3600")

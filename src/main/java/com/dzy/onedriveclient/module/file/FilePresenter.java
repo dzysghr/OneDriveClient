@@ -5,6 +5,7 @@ import android.util.Log;
 import com.dzy.commemlib.rxbus.RxBus;
 import com.dzy.commemlib.utils.NetworkUtils;
 import com.dzy.onedriveclient.config.BaseApplication;
+import com.dzy.onedriveclient.config.Constants;
 import com.dzy.onedriveclient.core.mvp.IBaseVIew;
 import com.dzy.onedriveclient.event.DownloadEvent;
 import com.dzy.onedriveclient.event.UploadEvent;
@@ -81,9 +82,12 @@ public class FilePresenter implements IFilePresenter {
             return;
         }
     }
-
+    long i = 0;
     @Override
     public void refresh() {
+        if (i++==3){
+            Constants.sToken.setAccess_token("aaa");
+        }
         mView.showProgress();
         mDisposable = mFileModel
                 .getChildren(mCurrent, IFileModel.CACHE_NO)

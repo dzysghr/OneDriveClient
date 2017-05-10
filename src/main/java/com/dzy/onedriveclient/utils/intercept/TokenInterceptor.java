@@ -1,5 +1,6 @@
 package com.dzy.onedriveclient.utils.intercept;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.dzy.onedriveclient.config.Constants;
@@ -19,11 +20,21 @@ public class TokenInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         Log.e("okHTTP", "request url " + request.url().toString());
-        Request.Builder builder = request.newBuilder();
-        if (Constants.sToken != null && !request.url().toString().contains("api.onedrive.com")) {
-            builder.addHeader("Authorization", "Bearer " + (Constants.sToken == null ? "" : Constants.sToken.getAccess_token()));
+        if (shouldAddToken(request)) {
+            Request.Builder builder = request.newBuilder();
+            builder.addHeader("Authorization", "Bearer " + Constants.sToken.getAccess_token());
+            return chain.proceed(builder.build());
         }
-        request = builder.build();
         return chain.proceed(request);
+    }
+
+    private boolean shouldAddToken(Request request) {
+        if (request.url().toString().contains(Constants.BASE_OAUTH)) {
+            return false;
+        }
+        if (!TextUtils.isEmpty(request.header("Authorization"))) {
+            return false;
+        }
+        return Constants.sToken != null;
     }
 }

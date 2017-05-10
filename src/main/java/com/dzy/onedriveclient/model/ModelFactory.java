@@ -7,6 +7,7 @@ import com.dzy.onedriveclient.model.drive.IOAuthModel;
 import com.dzy.onedriveclient.model.drive.IUserModel;
 import com.dzy.onedriveclient.model.drive.TokenModel;
 import com.dzy.onedriveclient.utils.UserInfoSPUtils;
+import com.dzy.onedriveclient.utils.intercept.AutoAuthenticator;
 import com.dzy.onedriveclient.utils.intercept.CacheInterceptor;
 import com.dzy.onedriveclient.utils.intercept.TokenInterceptor;
 
@@ -40,6 +41,7 @@ public class ModelFactory {
                     .writeTimeout(100, TimeUnit.SECONDS)
                     .cache(new Cache(BaseApplication.getApp().getCacheDir(),50*1024*1024))
                     .addInterceptor(new CacheInterceptor())
+                    .authenticator(new AutoAuthenticator())
                     .addNetworkInterceptor(new TokenInterceptor())
                     .build();
         }

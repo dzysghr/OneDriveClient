@@ -48,6 +48,10 @@ public class DownOrUploadService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        init();
+    }
+
+    private void init(){
         CoreContext context = new CoreContext
                 .Builder(this)
                 .client(ModelFactory.getOkHttpClient())
@@ -61,7 +65,7 @@ public class DownOrUploadService extends Service {
         mUploadManager = new UploadManager(context);
         mUploadManager.init();
 
-          Disposable disposable = RxBus.getDefault().toObservable(DownloadEvent.class)
+        Disposable disposable = RxBus.getDefault().toObservable(DownloadEvent.class)
                 .subscribe(new Consumer<DownloadEvent>() {
                     @Override
                     public void accept(@NonNull DownloadEvent downloadEvent) throws Exception {
@@ -89,7 +93,6 @@ public class DownOrUploadService extends Service {
                 });
         mDisposables.add(disposable);
     }
-
 
     private void newUploadTask(UploadEvent event) {
         String fileid = event.to == null ? null : ((DriveFile) event.to).getId();
