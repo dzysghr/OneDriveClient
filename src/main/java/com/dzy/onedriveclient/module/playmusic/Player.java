@@ -12,8 +12,6 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static android.R.attr.duration;
-
 public class Player implements MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnCompletionListener,
         MediaPlayer.OnPreparedListener {
 
@@ -62,7 +60,7 @@ public class Player implements MediaPlayer.OnBufferingUpdateListener, MediaPlaye
         public void handleMessage(android.os.Message msg) {
             if (init) {
                 int position = mediaPlayer.getCurrentPosition();
-                long pos = mProgressBar.getMax() * position / duration;
+                long pos = mProgressBar.getMax() * position / mDuration;
                 mProgressBar.setProgress((int) pos);
                 mTvLeft.setText(getTime(position));
             }

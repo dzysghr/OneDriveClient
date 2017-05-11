@@ -21,9 +21,11 @@ import static com.dzy.onedriveclient.config.Constants.KEY_ID;
 public abstract class BaseMediaActivity extends BaseActivity {
 
     private Call mCall;
+    protected String mId;
 
     protected void loadData(){
         String id = getIntent().getStringExtra(KEY_ID);
+        mId = id;
         if (id==null){
             finish();
             return;

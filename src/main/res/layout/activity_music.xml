@@ -9,6 +9,7 @@
     tools:context="com.dzy.onedriveclient.module.playmusic.MusicActivity">
 
     <ImageView
+        android:id="@+id/iv_music"
         android:layout_marginTop="200dp"
         android:layout_width="80dp"
         android:layout_height="80dp"
@@ -23,7 +24,8 @@
         android:ellipsize="marquee"
         android:marqueeRepeatLimit="marquee_forever"
         android:textSize="16sp"
-        tools:text="正在播放：中中中中中.mp3"
+        android:gravity="center_horizontal"
+        android:text="正在加载"
         android:layout_marginTop="30dp"
         android:layout_gravity="center_horizontal"
         android:layout_width="200dp"

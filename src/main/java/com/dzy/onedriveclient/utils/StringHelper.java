@@ -21,6 +21,10 @@ public final class StringHelper {
         return Constants.BASE_URL + "drive/items/{item-id}/content".replace("{item-id}", id);
     }
 
+    public static String makeThumbnailUrl(String id) {
+        return Constants.BASE_URL + "drive/items/{item-id}/thumbnails/0/large".replace("{item-id}", id);
+    }
+
 
     public static boolean isPicture(String name){
         if (mPictureEndwith==null){

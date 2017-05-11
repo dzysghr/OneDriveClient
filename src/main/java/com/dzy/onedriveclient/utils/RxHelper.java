@@ -29,7 +29,7 @@ import static android.content.ContentValues.TAG;
 
 public class RxHelper {
 
-    private static Gson gson = new Gson();
+    public static Gson gson = new Gson();
 
     public static <T> ObservableTransformer<T, T> io_main() {
         return new ObservableTransformer<T, T>() {
