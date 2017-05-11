@@ -11,6 +11,7 @@ import com.dzy.onedriveclient.config.Constants;
 public final class StringHelper {
 
     public static String[] mPictureEndwith;
+    public static String[] mMusicEndwith;
 
 
     private StringHelper() {
@@ -27,4 +28,13 @@ public final class StringHelper {
         }
         return OpenFileHelper.checkEndsWithInStringArray(name.toLowerCase(),mPictureEndwith);
     }
+
+
+    public static boolean isMusic(String name){
+        if (mMusicEndwith==null){
+            mMusicEndwith =  BaseApplication.getApp().getResources().getStringArray(R.array.fileEndingAudio);
+        }
+        return OpenFileHelper.checkEndsWithInStringArray(name.toLowerCase(),mMusicEndwith);
+    }
+
 }

@@ -24,7 +24,8 @@ public final class Constants {
     public static final String GRANT_TYPE_CODE = "authorization_code";
     public static final String GRANT_TYPE_REFRESH = "refresh_token";
 
-
+    public static final String KEY_ID = "id";
+    public static final String KEY_NAME = "name";
 
     public static String CODE = "";
 

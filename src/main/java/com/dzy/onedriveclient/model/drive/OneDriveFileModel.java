@@ -27,7 +27,7 @@ public class OneDriveFileModel implements IFileModel {
     private IOAuthModel mIOAuthModel;
     private IDriveFileModel mIDriveFileModel;
     private TokenBean mTokenBean;
-    private String mSelectField = "id,name,size,createdDateTime,lastModifiedDateTime,file,folder,eTag,parentReference";
+    private String mSelectField = "id,name,size,createdDateTime,lastModifiedDateTime,file,folder,eTag,parentReference,audio";
 
     public OneDriveFileModel() {
         mIOAuthModel = ModelFactory.getOAuthModel();

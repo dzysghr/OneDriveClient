@@ -48,7 +48,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    public View getContentView(){
+    protected View getContentView(){
         return null;
     }
 

@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.dzy.onedriveclient.R;
+import com.dzy.onedriveclient.config.Constants;
 import com.dzy.onedriveclient.core.BaseFragment;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.IBaseFileBean;
@@ -22,6 +23,7 @@ import com.dzy.onedriveclient.model.drive.OneDriveFileModel;
 import com.dzy.onedriveclient.model.local.LocalFileModel;
 import com.dzy.onedriveclient.module.MainActivity;
 import com.dzy.onedriveclient.module.PictureActivity;
+import com.dzy.onedriveclient.module.playmusic.MusicActivity;
 import com.dzy.onedriveclient.utils.OpenFileHelper;
 import com.dzy.onedriveclient.utils.StringHelper;
 
@@ -155,15 +157,21 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
             return;
         }
         DriveFile file = (DriveFile) bean;
-        if (StringHelper.isPicture(file.getName())) {
-            openPicture(file);
-        }
+        open(file);
     }
 
-    private void openPicture(DriveFile file) {
-        Intent i = new Intent(getActivity(), PictureActivity.class);
-        i.putExtra(PictureActivity.KEY_ID,file.getId());
-        startActivity(i);
+    private void open(DriveFile file){
+        Intent i = null;
+        if (StringHelper.isPicture(file.getName())) {
+            i = new Intent(getActivity(), PictureActivity.class);
+        }else if(StringHelper.isMusic(file.getName())){
+            i = new Intent(getActivity(), MusicActivity.class);
+            i.putExtra(Constants.KEY_NAME,file.getName());
+        }
+        if (i!=null){
+            i.putExtra(Constants.KEY_ID,file.getId());
+            startActivity(i);
+        }
     }
 
     private FileFragment getTop() {

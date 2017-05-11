@@ -1,5 +1,6 @@
 package com.dzy.onedriveclient.model.drive;
 
+import com.dzy.onedriveclient.model.drive.facet.AudioFacet;
 import com.dzy.onedriveclient.model.drive.facet.FileFacet;
 import com.dzy.onedriveclient.model.drive.facet.FolderFacet;
 import com.dzy.onedriveclient.model.drive.facet.ItemReference;
@@ -15,6 +16,7 @@ public class DriveItem {
     private FolderFacet folder;
     private String eTag;
     private ItemReference parentReference;
+    private AudioFacet audio;
 
     public ItemReference getParentReference() {
         return parentReference;
@@ -86,5 +88,13 @@ public class DriveItem {
 
     public void seteTag(String eTag) {
         this.eTag = eTag;
+    }
+
+    public AudioFacet getAudio() {
+        return audio;
+    }
+
+    public void setAudio(AudioFacet audio) {
+        this.audio = audio;
     }
 }
