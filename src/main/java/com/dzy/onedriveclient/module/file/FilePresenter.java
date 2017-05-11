@@ -78,9 +78,7 @@ public class FilePresenter implements IFilePresenter {
 
     @Override
     public void open(IBaseFileBean bean) {
-        if (bean.isFolder()) {
-            return;
-        }
+        // 这个方法没用到
     }
     long i = 0;
     @Override

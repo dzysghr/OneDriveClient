@@ -48,6 +48,8 @@
             android:label="@string/title_activity_main2"
             android:theme="@style/AppTheme">
         </activity>
+        <activity android:name=".module.PictureActivity">
+        </activity>
     </application>
 
 </manifest>

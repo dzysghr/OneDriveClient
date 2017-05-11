@@ -186,7 +186,7 @@ public final class OpenFileHelper{
     }  
   
     //检查文件类型是否在fileEndings.xml列表中  
-    private static boolean checkEndsWithInStringArray(String checkItsEnd,
+    public static boolean checkEndsWithInStringArray(String checkItsEnd,
             String[] fileEndings) {  
         for (String aEnd : fileEndings) {  
             if (checkItsEnd.endsWith(aEnd))  

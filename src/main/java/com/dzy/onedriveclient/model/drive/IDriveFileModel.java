@@ -50,6 +50,4 @@ public interface IDriveFileModel {
     @DELETE("drive/items/{id}")
     Observable<Response<ResponseBody>> delete(@Path("id") String id);
 
-    @GET("drive/items/{id}/content")
-    Observable<Response<ResponseBody>> download(@Path("id") String id,@Header("Range") String range);
 }

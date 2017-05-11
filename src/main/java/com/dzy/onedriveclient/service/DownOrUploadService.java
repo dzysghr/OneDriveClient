@@ -8,15 +8,14 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.dzy.commemlib.rxbus.RxBus;
-import com.dzy.onedriveclient.config.Constants;
-import com.dzy.onedriveclient.event.UploadEvent;
-import com.dzy.onedriveclient.transfer.CoreContext;
-import com.dzy.onedriveclient.transfer.DownloadManager;
-import com.dzy.onedriveclient.transfer.TaskHandle;
 import com.dzy.onedriveclient.event.DownloadEvent;
+import com.dzy.onedriveclient.event.UploadEvent;
 import com.dzy.onedriveclient.model.ModelFactory;
 import com.dzy.onedriveclient.model.drive.DriveFile;
 import com.dzy.onedriveclient.model.local.LocalFileBean;
+import com.dzy.onedriveclient.transfer.CoreContext;
+import com.dzy.onedriveclient.transfer.DownloadManager;
+import com.dzy.onedriveclient.transfer.TaskHandle;
 import com.dzy.onedriveclient.transfer.UploadManager;
 
 import java.io.File;
@@ -27,6 +26,8 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+
+import static com.dzy.onedriveclient.utils.StringHelper.makeDownloadUrl;
 
 public class DownOrUploadService extends Service {
 
@@ -142,9 +143,7 @@ public class DownOrUploadService extends Service {
                 });
     }
 
-    private String makeDownloadUrl(String id) {
-        return Constants.BASE_URL + "drive/items/{item-id}/content".replace("{item-id}", id);
-    }
+
 
     @Override
     public void onDestroy() {
