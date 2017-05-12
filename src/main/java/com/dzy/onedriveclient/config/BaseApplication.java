@@ -8,6 +8,7 @@ import android.net.NetworkInfo;
 import android.provider.Settings;
 
 import com.dzy.commemlib.utils.ActivityLifeCallBack;
+import com.facebook.stetho.Stetho;
 
 
 public class BaseApplication extends Application {
@@ -18,6 +19,8 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         sInstance =this;
+        Stetho.initializeWithDefaults(this);
+
         this.registerActivityLifecycleCallbacks(new ActivityLifeCallBack());
     }
 

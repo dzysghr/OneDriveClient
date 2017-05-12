@@ -88,6 +88,7 @@ public class WelcomeActivity extends BaseActivity {
     protected void checkLogin() {
         String user = UserInfoSPUtils.getUser();
         if (user==null){
+            mBtnOneDrive.setVisibility(View.VISIBLE);
             return;
         }else{
             ModelFactory.setDBModel(new DBModel(getApplicationContext(),user));

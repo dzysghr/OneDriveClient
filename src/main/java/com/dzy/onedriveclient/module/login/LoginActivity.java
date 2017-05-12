@@ -107,9 +107,6 @@ public class LoginActivity extends BaseActivity {
 
 
     private void logUsername(String msg){
-        if (mUsername!=null){
-            return;
-        }
         int i = msg.indexOf("login_hint=");
         if (i>-1){
             msg = msg.substring(i+11);
