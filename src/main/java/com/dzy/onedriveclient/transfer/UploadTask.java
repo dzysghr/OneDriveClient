@@ -21,7 +21,9 @@ import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okio.Buffer;
 import okio.BufferedSink;
+import okio.ForwardingSink;
 import okio.Okio;
 import okio.Sink;
 import okio.Source;
@@ -238,7 +240,7 @@ public class UploadTask implements ITask {
         long now = System.currentTimeMillis();
         long diff = now - mLastTime;
         mLastFinish += len;
-        if (diff > 1000) {
+        if (diff > 200) {
             mTaskHandle.setSpeed(Math.round(mLastFinish / diff * 1000f));
             mDispatcher.submit(AbstractDispatcher.MSG_UPDATE, mTaskHandle);
             mLastTime = now;
@@ -256,18 +258,18 @@ public class UploadTask implements ITask {
         if (mUploadThread != null && mUploadThread.isRunning) {
             mUploadThread.interrupt();
         }
+        mContext.getTaskDao().delete(mTaskInfo);
         if (mSession == null) {
-            mContext.getTaskDao().delete(mTaskInfo);
             try {
                 mSession = getUploadSessionFromDB(mTaskInfo);
-                if (mSession != null) {
-                    mContext.getUploadSessionDao().delete(mSession);
-                }
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
-        if (mSession == null) {
+        if (mSession != null) {
+            mContext.getUploadSessionDao().delete(mSession);
+        }
+        if (mSession == null || mTaskInfo.getFinish() == mTaskInfo.getLength()) {
             return;
         }
         Observable.just(mSession).subscribeOn(Schedulers.newThread())
@@ -324,23 +326,7 @@ public class UploadTask implements ITask {
             }
             Log.e(TAG, "write start: ");
             //写入
-            //bufferedSink.write(mSource,contentLength());
-            long read;
-            long total = 0;
-            long segment = sDefaultSegment;
-            long len = contentLength();
-            while ((read = mSource.read(sink.buffer(), segment)) != -1) {
-                sink.flush();
-                total += read;
-                //Log.e(TAG, "write: update" + read);
-                updateProgress(read);
-                if (segment != sDefaultSegment) {
-                    break;
-                }
-                if (len - total < segment) {
-                    segment = len - total;
-                }
-            }
+            bufferedSink.write(mSource,contentLength());
             Log.e(TAG, "write end: ");
             //必须调用flush，否则最后一部分数据可能不会被写入
             bufferedSink.flush();
@@ -349,16 +335,15 @@ public class UploadTask implements ITask {
         }
 
         private Sink sink(Sink sink) {
-            return sink;
-//            return new ForwardingSink(sink) {
-//                @Override
-//                public void write(Buffer source, long byteCount) throws IOException {
-//                    super.write(source, byteCount);
-//                    Log.e(TAG, "write: update"+byteCount);
-//                    //增加当前写入的字节数
-//                    updateProgress(byteCount);
-//                }
-//            };
+            return new ForwardingSink(sink) {
+                @Override
+                public void write(Buffer source, long byteCount) throws IOException {
+                    super.write(source, byteCount);
+                    Log.e(TAG, "write: update"+byteCount);
+                    //增加当前写入的字节数
+                    updateProgress(byteCount);
+                }
+            };
         }
     }
 
