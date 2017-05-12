@@ -47,6 +47,8 @@
         </activity>
         <activity android:name=".module.playmusic.MusicActivity">
         </activity>
+        <activity android:name=".module.VedioActivity">
+        </activity>
     </application>
 
 </manifest>

@@ -12,6 +12,7 @@ public final class StringHelper {
 
     public static String[] mPictureEndwith;
     public static String[] mMusicEndwith;
+    public static String[] mVedioEndwith;
 
 
     private StringHelper() {
@@ -40,5 +41,15 @@ public final class StringHelper {
         }
         return OpenFileHelper.checkEndsWithInStringArray(name.toLowerCase(),mMusicEndwith);
     }
+
+    public static boolean isVedio(String name){
+        if (mVedioEndwith==null){
+            mVedioEndwith =  BaseApplication.getApp().getResources().getStringArray(R.array.fileEndingVideo);
+        }
+        return OpenFileHelper.checkEndsWithInStringArray(name.toLowerCase(),mVedioEndwith);
+    }
+
+
+
 
 }

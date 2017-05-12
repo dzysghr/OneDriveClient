@@ -29,7 +29,7 @@ public class TokenInterceptor implements Interceptor {
     }
 
     private boolean shouldAddToken(Request request) {
-        if (request.url().toString().contains(Constants.BASE_OAUTH)) {
+        if (request.url().toString().startsWith(Constants.BASE_OAUTH)||request.url().toString().startsWith("https://api.onedrive.com")) {
             return false;
         }
         if (!TextUtils.isEmpty(request.header("Authorization"))) {

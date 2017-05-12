@@ -10,7 +10,6 @@ import com.dzy.onedriveclient.utils.UserInfoSPUtils;
 import com.dzy.onedriveclient.utils.intercept.AutoAuthenticator;
 import com.dzy.onedriveclient.utils.intercept.CacheInterceptor;
 import com.dzy.onedriveclient.utils.intercept.TokenInterceptor;
-import com.facebook.stetho.okhttp3.StethoInterceptor;
 
 import java.util.concurrent.TimeUnit;
 
@@ -40,7 +39,7 @@ public class ModelFactory {
             sOkHttpClient = new OkHttpClient
                     .Builder()
                     .writeTimeout(100, TimeUnit.SECONDS)
-                    .addNetworkInterceptor(new StethoInterceptor())
+                    //.addNetworkInterceptor(new StethoInterceptor())
                     .cache(new Cache(BaseApplication.getApp().getCacheDir(),50*1024*1024))
                     .addInterceptor(new CacheInterceptor())
                     .authenticator(new AutoAuthenticator())

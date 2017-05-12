@@ -2,6 +2,7 @@ package com.dzy.onedriveclient.module;
 
 import android.util.Log;
 
+import com.dzy.commemlib.utils.NetworkUtils;
 import com.dzy.onedriveclient.core.BaseActivity;
 import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.ModelFactory;
@@ -24,6 +25,10 @@ public abstract class BaseMediaActivity extends BaseActivity {
     protected String mId;
 
     protected void loadData(){
+        if (!NetworkUtils.isNetworkConnected(this)){
+            Toast("当前无网络");
+            finish();
+        }
         String id = getIntent().getStringExtra(KEY_ID);
         mId = id;
         if (id==null){

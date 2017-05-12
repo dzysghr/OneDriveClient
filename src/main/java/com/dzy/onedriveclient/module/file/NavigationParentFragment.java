@@ -23,6 +23,7 @@ import com.dzy.onedriveclient.model.drive.OneDriveFileModel;
 import com.dzy.onedriveclient.model.local.LocalFileModel;
 import com.dzy.onedriveclient.module.MainActivity;
 import com.dzy.onedriveclient.module.PictureActivity;
+import com.dzy.onedriveclient.module.VedioActivity;
 import com.dzy.onedriveclient.module.playmusic.MusicActivity;
 import com.dzy.onedriveclient.utils.OpenFileHelper;
 import com.dzy.onedriveclient.utils.StringHelper;
@@ -167,6 +168,8 @@ public class NavigationParentFragment extends BaseFragment implements Toolbar.On
         }else if(StringHelper.isMusic(file.getName())){
             i = new Intent(getActivity(), MusicActivity.class);
             i.putExtra(Constants.KEY_NAME,file.getName());
+        }else if (StringHelper.isVedio(file.getName())){
+            i = new Intent(getActivity(), VedioActivity.class);
         }
         if (i!=null){
             i.putExtra(Constants.KEY_ID,file.getId());
