@@ -17,7 +17,6 @@ import com.dzy.onedriveclient.model.DBModel;
 import com.dzy.onedriveclient.model.ModelFactory;
 import com.dzy.onedriveclient.model.drive.TokenBean;
 import com.dzy.onedriveclient.model.drive.TokenModel;
-import com.dzy.onedriveclient.module.login.LoginActivity;
 import com.dzy.onedriveclient.utils.RxHelper;
 import com.dzy.onedriveclient.utils.UserInfoSPUtils;
 

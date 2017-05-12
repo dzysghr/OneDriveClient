@@ -1,5 +1,5 @@
 
-package com.dzy.onedriveclient.module.login;
+package com.dzy.onedriveclient.module;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -19,7 +19,6 @@ import com.dzy.onedriveclient.core.mvp.IBasePresenter;
 import com.dzy.onedriveclient.model.DBModel;
 import com.dzy.onedriveclient.model.ModelFactory;
 import com.dzy.onedriveclient.model.drive.TokenBean;
-import com.dzy.onedriveclient.module.MainActivity;
 import com.dzy.onedriveclient.utils.RxHelper;
 import com.dzy.onedriveclient.utils.UserInfoSPUtils;
 
